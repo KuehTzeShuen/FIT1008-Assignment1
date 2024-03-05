@@ -42,7 +42,6 @@ class TypeEffectiveness:
         Returns:
             float: The effectiveness of the attack, as a float value between 0 and 4.
         """
-        raise NotImplementedError
 
     def __len__(self) -> int:
         """
