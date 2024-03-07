@@ -2,8 +2,8 @@
 This module contains PokeType, TypeEffectiveness and an abstract version of the Pokemon Class
 """
 from abc import ABC
+import csv
 from enum import Enum
-from data_structures.referential_array import ArrayR
 
 class PokeType(Enum):
     """
@@ -42,6 +42,14 @@ class TypeEffectiveness:
         Returns:
             float: The effectiveness of the attack, as a float value between 0 and 4.
         """
+
+        with open("type_effectiveness.csv") as file:
+            csv_reader = csv.reader(file)
+            next(csv_reader)
+            for index, row in enumerate(csv_reader):
+                if index == attack_type.value:
+                    return float(row[defend_type.value])
+        
 
     def __len__(self) -> int:
         """
@@ -160,7 +168,7 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         Returns:
             int: The damage that this Pokemon inflicts on the other Pokemon during an attack.
         """
-        raise NotImplementedError
+        return int((self.get_battle_power() * TypeEffectiveness.get_effectiveness(self.get_poketype(), other_pokemon.get_poketype())))
 
     def defend(self, damage: int) -> None:
         """
@@ -188,7 +196,11 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         Evolves the Pokemon to the next stage in its evolution line, and updates
           its attributes accordingly.
         """
-        raise NotImplementedError
+        self.name = self.evolution_line[self.evolution_line.index(self.name)+1]
+        self.battle_power *= 1.5
+        self.health *= 1.5
+        self.speed *= 1.5
+        self.defence *= 1.5
 
     def is_alive(self) -> bool:
         """
@@ -206,3 +218,11 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         """
         return f"{self.name} (Level {self.level}) with {self.get_health()} health \
                 and {self.get_experience()} experience"
+
+
+# test
+if __name__ == "__main__":
+    print(TypeEffectiveness.get_effectiveness(PokeType.GRASS, PokeType.WATER))
+    print(TypeEffectiveness.get_effectiveness(PokeType.WATER, PokeType.GRASS))
+    print(TypeEffectiveness.get_effectiveness(PokeType.FIRE, PokeType.GRASS))
+    print(TypeEffectiveness.get_effectiveness(PokeType.GRASS, PokeType.FIRE))
