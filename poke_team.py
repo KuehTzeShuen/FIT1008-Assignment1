@@ -3,57 +3,89 @@ import random
 from typing import List
 
 class PokeTeam:
-    random.seed(20)
+
     TEAM_LIMIT = 6
-    POKE_LIST = get_all_pokemon_types()
+    POKE_LIST = list(get_all_pokemon_types())
 
     def __init__(self):
-        raise NotImplementedError
+        self.team = []
 
-    def choose_manually(self):
-        raise NotImplementedError
+    def choose_manually(self, pokemon):
+        if len(pokemon) <= self.TEAM_LIMIT:
+            self.team = list(pokemon)
+        else:
+            print(f"You can only have {self.TEAM_LIMIT} pokemon in your team")
 
     def choose_randomly(self) -> None:
-        raise NotImplementedError
-
+        self.team = [pokemon() for pokemon in random.sample(self.POKE_LIST, self.TEAM_LIMIT)]
+    
     def regenerate_team(self) -> None:
-        raise NotImplementedError
+        for pokemon in self.team:
+            stage = self.evolution_line.index(self.name)
+            pokemon.health = stage.health
+        
+    # def assemble_team(self) -> None:
+    #     raise NotImplementedError
+        
+    # def special(self) -> None:
+    #     raise NotImplementedError
 
     def __getitem__(self, index: int):
-        raise NotImplementedError
+        return self.team[index]
 
-    def __len__(self):
-        raise NotImplementedError
+    def len(self):
+        return len(self.team)
 
     def __str__(self):
-        raise NotImplementedError
+        result = "Your team is: \n"
+        for pokemon in self.team:
+            result += f"{pokemon.name}\n"
+        return result
 
 class Trainer:
 
     def __init__(self, name) -> None:
-        raise NotImplementedError
+        self.name = name
+        self.team = PokeTeam()
+        self.pokedex = Pokedex()
 
     def pick_team(self, method: str) -> None:
-        raise NotImplementedError
+        if method == "random":
+            self.team.choose_randomly()
+        elif method == "manual":
+            self.team.choose_manually()
+        else:
+            print("Invalid method")
 
     def get_team(self) -> PokeTeam:
-        raise NotImplementedError
+        return self.team
 
     def get_name(self) -> str:
-        raise NotImplementedError
+        return self.name
 
     def register_pokemon(self, pokemon: Pokemon) -> None:
-        raise NotImplementedError
+        self.pokedex.add(pokemon)
 
     def get_pokedex_completion(self) -> float:
-        raise NotImplementedError
+        seen_types = set()
+        for pokemon in self.team:
+            seen_types.add(pokemon.poketype)
+        ans = round(len(seen_types) / len(PokeType.__members__), 2)
+        return ans
 
     def __str__(self) -> str:
-        raise NotImplementedError
+        return f"Trainer {self.name} \n Pokedex Completion {self.get_pokedex_completion() * 100}%"
+    
+class Pokedex:
+    def __init__(self):
+        self.pokedex = set()
 
 if __name__ == '__main__':
     t = Trainer('Ash')
+    print("test 1")
     print(t)
-    t.pick_team("Random")
+    t.pick_team("random")
+    print("test 2")
     print(t)
+    print("test 3")
     print(t.get_team())

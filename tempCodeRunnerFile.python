@@ -1,0 +1,31 @@
+a = input()
+b= input()
+myMap = {}
+ans = 0
+
+n = 0
+i = 0
+
+for i in range(len(a)):
+    if a[i] == ' ':
+        print("here")
+    if a[i].isdigit():
+        i += 1
+
+i += 1
+
+for i in range(len(a)):
+    if a[i].isdigit():
+        n = n * 10 + int(a[i])
+
+i = 0
+for i in range(len(b), 2):
+    myMap[b[i]] += 1
+
+
+for i in range(len(b), 2):
+    target = n - i
+    if myMap[target] > 0:
+        ans += myMap[target]
+
+print (ans)

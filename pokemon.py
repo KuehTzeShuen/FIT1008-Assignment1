@@ -1,3 +1,4 @@
+from data_structures.referential_array import ArrayR
 from pokemon_base import *
 import inspect
 

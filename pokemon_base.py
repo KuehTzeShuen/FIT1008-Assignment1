@@ -50,12 +50,12 @@ class TypeEffectiveness:
                 if index == attack_type.value:
                     return float(row[defend_type.value])
         
-
+    # TODO
     def __len__(self) -> int:
         """
         Returns the number of types of Pokemon
         """
-        raise NotImplementedError
+        return len(PokeType)
 
 
 class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-attributes
@@ -220,9 +220,10 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
                 and {self.get_experience()} experience"
 
 
-# test
+# TODO
 if __name__ == "__main__":
     print(TypeEffectiveness.get_effectiveness(PokeType.GRASS, PokeType.WATER))
     print(TypeEffectiveness.get_effectiveness(PokeType.WATER, PokeType.GRASS))
     print(TypeEffectiveness.get_effectiveness(PokeType.FIRE, PokeType.GRASS))
     print(TypeEffectiveness.get_effectiveness(PokeType.GRASS, PokeType.FIRE))
+    print(TypeEffectiveness.__len__(PokeType.WATER,PokeType.FIRE))
