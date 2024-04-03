@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
     t2 = Trainer('Gary')
     t2.pick_team('random')
-    b = Battle(t1, t2, BattleMode.ROTATE)
+    b = Battle(t1, t2, BattleMode.SET)
     winner = b.commence_battle()
 
     if winner is None:

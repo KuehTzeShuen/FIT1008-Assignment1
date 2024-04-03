@@ -12,7 +12,8 @@ class PokeTeam:
 
     def choose_manually(self, pokemon):
         if len(pokemon) <= self.TEAM_LIMIT:
-            self.team = list(pokemon)
+            pokemon_classes = {cls.__name__: cls for cls in self.POKE_LIST}
+            self.team = [pokemon_classes[name]() for name in pokemon.name if name in pokemon_classes]
         else:
             print(f"You can only have {self.TEAM_LIMIT} pokemon in your team")
 
