@@ -2,7 +2,6 @@
 This module contains PokeType, TypeEffectiveness and an abstract version of the Pokemon Class
 """
 from abc import ABC
-import csv
 from enum import Enum
 
 class PokeType(Enum):
@@ -43,12 +42,11 @@ class TypeEffectiveness:
             float: The effectiveness of the attack, as a float value between 0 and 4.
         """
 
-        with open("type_effectiveness.csv") as file:
-            csv_reader = csv.reader(file)
-            next(csv_reader)
-            for index, row in enumerate(csv_reader):
-                if index == attack_type.value:
-                    return float(row[defend_type.value])
+        with open("type_effectiveness.csv", encoding='utf-8') as file:
+            next(file)
+            lines = file.readlines()
+            data = [line.strip().split(',') for line in lines]
+            return float(data[attack_type.value][defend_type.value])
         
     # TODO
     def __len__(self) -> int:
@@ -168,7 +166,7 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         Returns:
             int: The damage that this Pokemon inflicts on the other Pokemon during an attack.
         """
-        return int((self.get_battle_power() * TypeEffectiveness.get_effectiveness(self.get_poketype(), other_pokemon.get_poketype())))
+        return int((self.get_battle_power() * TypeEffectiveness.get_effectiveness(self.poketype, other_pokemon.poketype)))
 
     def defend(self, damage: int) -> None:
         """
@@ -226,4 +224,4 @@ if __name__ == "__main__":
     print(TypeEffectiveness.get_effectiveness(PokeType.WATER, PokeType.GRASS))
     print(TypeEffectiveness.get_effectiveness(PokeType.FIRE, PokeType.GRASS))
     print(TypeEffectiveness.get_effectiveness(PokeType.GRASS, PokeType.FIRE))
-    print(TypeEffectiveness.__len__(PokeType.WATER,PokeType.FIRE))
+    # print(TypeEffectiveness.__len__(PokeType.WATER,PokeType.FIRE))

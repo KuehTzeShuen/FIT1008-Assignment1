@@ -98,6 +98,14 @@ class ArrayStack(Stack[T]):
         if self.is_empty():
             raise Exception("Stack is empty")
         return self.array[self.length-1]
+    
+    # testing purposes
+    def __str__(self):
+        return ', '.join(str(item) for item in reversed(self.array))
+    
+    def __iter__(self):
+        for item in reversed(self.array):
+            yield item
 
 class TestStack(unittest.TestCase):
     """ Tests for the above class."""
