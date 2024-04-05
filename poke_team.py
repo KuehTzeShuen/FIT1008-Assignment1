@@ -36,8 +36,10 @@ class PokeTeam:
         if battle_mode == BattleMode.SET:
             self.team = ArrayStack(team.__len__())
             for pokemon in reversed(team):
+                # print(pokemon.name)
                 self.team.push(pokemon)
-            print(self.team)
+            # print("TESTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
+            # print(self.team)
         elif battle_mode == BattleMode.ROTATE:
             self.team = CircularQueue()
             for pokemon in team:

@@ -1,4 +1,5 @@
 import random
+from battle import Battle
 from poke_team import Trainer, PokeTeam
 from enum import Enum
 from data_structures.stack_adt import ArrayStack
@@ -21,14 +22,13 @@ class BattleTower:
         self.lives = random.randint(self.MIN_LIVES, self.MAX_LIVES)
         
     def generate_enemy_trainers(self, n: int) -> None:
-        self.enemy_trainers = []
+        self.enemy_trainers = CircularQueue(n)
         for _ in range(n):
-            trainer = Trainer('Enemy Trainer')
+            trainer = Trainer('Rocket Grunt ' + str(_))
             trainer.pick_team("random")
-            team = trainer.get_team()
-            team.assemble_team(BattleMode.ROTATE)
-            lives = random.randint(self.MIN_LIVES, self.MAX_LIVES)
-            self.enemy_trainers.append((trainer, team, lives))
+            trainer.lives = random.randint(self.MIN_LIVES, self.MAX_LIVES)
+            # print(trainer, team, trainer.lives)
+            self.enemy_trainers.append((trainer))
 
     def battles_remaining(self) -> bool:
         if self.lives <= 0:
@@ -39,21 +39,27 @@ class BattleTower:
         return False
 
     def next_battle(self) -> Tuple[Trainer, PokeTeam, int, int]:
-        # Get the next enemy trainer
-        enemy_trainer, enemy_team, enemy_lives = self.enemy_trainers.pop(0)
+        if len(self.enemy_trainers) == 0:
+            return "Team Wipe."
 
-        # Simulate the battle
-        battle_result = self.my_trainer.battle(enemy_trainer)
+        enemy_trainer = self.enemy_trainers.serve()
+        battle = Battle(self.my_trainer, enemy_trainer, BattleMode.SET)
 
-        # Update lives based on the battle result
-        if battle_result == BattleResult.PLAYER_WIN:
-            enemy_lives -= 1
-            self.enemy_lives_taken += 1  # Add this line
-        elif battle_result == BattleResult.ENEMY_WIN:
+        winner = battle.commence_battle()
+        if winner == self.my_trainer:
+            enemy_trainer.lives -= 1
+            if enemy_trainer.lives > 0:
+                self.enemy_trainers.append((enemy_trainer))
+        else:
             self.lives -= 1
+            self.enemy_trainers.append((enemy_trainer))
 
-        # Return the battle result and the remaining lives
-        return battle_result, self.my_trainer, enemy_trainer, self.lives, enemy_lives
+        if self.lives > 0:
+            print("You won")
+            return self.my_trainer, enemy_trainer, self.lives, enemy_trainer.lives
+        else:
+            print("Ya lost, bub")
+            return self.my_trainer, enemy_trainer, self.lives, enemy_trainer.lives
 
     def enemies_defeated(self) -> int:
         return self.enemy_lives_taken
@@ -62,9 +68,11 @@ class BattleTower:
 if __name__ == "__main__":
         tower = BattleTower()
         trainer = Trainer('Ash')
+        trainer.pick_team("random")
         tower.set_my_trainer(trainer)
         tower.generate_enemy_trainers(5)
-        print(tower.generate_enemy_trainers(5))
+        print("here")
+        tower.next_battle()
         # for _ in range(5):
         #     battle_result, my_trainer, enemy_trainer, my_lives, enemy_lives = tower.next_battle()
         #     print(f"Battle Result: {battle_result}, My Lives: {my_lives}, Enemy Lives: {enemy_lives}")

@@ -22,6 +22,7 @@ class Battle:
 
     def _create_teams(self) -> Tuple[PokeTeam, PokeTeam]:
         print("test2teststart")
+        print(self.trainer_1.team)
         if self.battle_mode == BattleMode.SET:
             self.team1 = self.trainer_1.get_team().assemble_team(BattleMode.SET)
             self.team2 = self.trainer_2.get_team().assemble_team(BattleMode.SET)
