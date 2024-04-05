@@ -46,8 +46,17 @@ class PokeTeam:
             raise ValueError(f"Invalid battle mode")
         return self.team
         
-    # def special(self) -> None:
-    #     raise NotImplementedError
+    def special(self, battle_mode: BattleMode) -> None:
+        if battle_mode == BattleMode.SET:
+            mid_index = len(self.team) // 2
+            self.team[:mid_index] = reversed(self.team[:mid_index])
+        elif battle_mode == BattleMode.ROTATE:
+            mid_index = len(self.team) // 2
+            self.team[mid_index:] = reversed(self.team[mid_index:])
+        elif battle_mode == BattleMode.OPTIMISE:
+            self.team = self.team[::-1]
+        else:
+            raise ValueError(f"Invalid battle mode")
 
     def __getitem__(self, index: int):
         return self.team[index]

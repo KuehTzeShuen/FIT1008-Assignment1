@@ -25,6 +25,12 @@ class Battle:
         if self.battle_mode == BattleMode.SET:
             self.team1 = self.trainer_1.get_team().assemble_team(BattleMode.SET)
             self.team2 = self.trainer_2.get_team().assemble_team(BattleMode.SET)
+        elif self.battle_mode == BattleMode.ROTATE:
+            self.team1 = self.trainer_1.get_team().assemble_team(BattleMode.ROTATE)
+            self.team2 = self.trainer_2.get_team().assemble_team(BattleMode.ROTATE)
+        elif self.battle_mode == BattleMode.OPTIMISE:
+            self.team1 = self.trainer_1.get_team().assemble_team(BattleMode.OPTIMISE)
+            self.team2 = self.trainer_2.get_team().assemble_team(BattleMode.OPTIMISE)
         # if self.battle_mode == BattleMode.ROTATE:
         #     team_1 = self.trainer_1.get_team().to_queue()
         #     team_2 = self.trainer_2.get_team().to_queue()
@@ -40,25 +46,37 @@ class Battle:
         team_1, team_2 = self._create_teams()
         pokemon_1 = team_1.pop()
         pokemon_2 = team_2.pop()
+        print("here")
         print(pokemon_1)
         print(pokemon_2)
         while len(team_1) > 0 and len(team_2) > 0:
+            if pokemon_1.get_health() <= 0 and pokemon_2.get_health() <= 0:
+                pokemon_1 = team_1.pop()
+                pokemon_2 = team_2.pop()
+            elif pokemon_1.get_health() <= 0 and len(team_1) > 0:
+                pokemon_2.level_up()
+                pokemon_1 = team_1.pop()
+            elif pokemon_2.get_health() <= 0 and len(team_2) > 0:
+                pokemon_1.level_up()
+                pokemon_2 = team_2.pop()
+
             while pokemon_1.get_health() > 0 and pokemon_2.get_health() > 0:
-                if pokemon_1.get_speed() > pokemon_2.speed():
+                if pokemon_1.get_speed() > pokemon_2.get_speed():
                     pokemon_2.health -= pokemon_1.attack(pokemon_2)
                     if pokemon_2.get_health() > 0:
                         pokemon_1.health -= pokemon_2.attack(pokemon_1)
-                elif pokemon_1.get_speed() < pokemon_2.speed():
+                elif pokemon_1.get_speed() < pokemon_2.get_speed():
                     pokemon_1.health -= pokemon_2.attack(pokemon_1)
                     if pokemon_1.get_health() > 0:
                         pokemon_2.health -= pokemon_1.attack(pokemon_2)
-                elif pokemon_1.get_speed() == pokemon_2.speed():
+                elif pokemon_1.get_speed() == pokemon_2.get_speed():
                     pokemon_2.health -= pokemon_1.attack(pokemon_2)
                     pokemon_1.health -= pokemon_2.attack(pokemon_1)
-            if pokemon_1.get_health() > 0 and len(team_1) > 0:
-                pokemon_1 = team_1.pop()
-            elif pokemon_2.get_health() > 0 and len(team_2) > 0:
-                pokemon_2 = team_2.pop()
+
+        print("\n team1")
+        print(team_1)
+        print("\n team2")
+        print(team_2)
         if len(team_1) > 0:
             return self.trainer_1
         elif len(team_2) > 0:
@@ -102,14 +120,13 @@ class Battle:
                     pokemon_2.health -= pokemon_1.attack(pokemon_2)
                     pokemon_1.health -= pokemon_2.attack(pokemon_1)
 
-                team_1.push(pokemon_1)
-                team_2.push(pokemon_2)
-                pokemon_1 = team_1.pop()
-                pokemon_2 = team_2.pop()
-            if pokemon_1.get_health() > 0:
-                return self.trainer_1
-            elif pokemon_2.get_health() > 0:
-                return self.trainer_2
+            pokemon_1 = team_1.pop()
+            pokemon_2 = team_2.pop()
+        
+        if len(team_1) > 0:
+            return self.trainer_1
+        elif len(team_2) > 0:
+            return self.trainer_2
         return None
 
 
