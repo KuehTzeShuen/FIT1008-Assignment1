@@ -99,6 +99,10 @@ class CircularQueue(Queue[T]):
         self.front = 0
         self.rear = 0
 
+    def __iter__(self):
+        for item in self.array:
+            yield item
+
 
 class TestQueue(unittest.TestCase):
     """ Tests for the above class."""

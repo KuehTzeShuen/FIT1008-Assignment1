@@ -169,6 +169,7 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         Returns:
             int: The damage that this Pokemon inflicts on the other Pokemon during an attack.
         """
+        print(f"{self.name} and {other_pokemon.name} attacking")
         return int((self.get_battle_power() * TypeEffectiveness.get_effectiveness(self.poketype, other_pokemon.poketype)))
 
     def defend(self, damage: int) -> None:

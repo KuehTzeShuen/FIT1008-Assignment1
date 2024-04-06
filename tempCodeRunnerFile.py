@@ -1,1 +1,2 @@
-    # print(t.get_team().assemble_team(BattleMode.SET))
+    b = Battle(t1, t2, BattleMode.SET)
+    winner = b.commence_battle()

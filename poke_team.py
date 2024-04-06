@@ -1,3 +1,4 @@
+from data_structures.array_sorted_list import ArraySortedList
 from pokemon import *
 import random
 from typing import List
@@ -64,9 +65,13 @@ class PokeTeam:
             # print("TESTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
             # print(self.team)
         elif battle_mode == BattleMode.ROTATE:
-            self.team = CircularQueue()
+            self.team = CircularQueue(self.team.__len__())
             for pokemon in team:
                 self.team.append(pokemon)
+        elif battle_mode == BattleMode.OPTIMISE:
+            self.team = ArraySortedList()
+            for pokemon in team:
+                self.team.add(pokemon)
         else:
             raise ValueError(f"Invalid battle mode")
         return self.team
