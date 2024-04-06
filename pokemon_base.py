@@ -73,6 +73,9 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         self.experience = None
         self.defence = None
         self.speed = None
+        # To keep track of which pokemon is which after reordering
+        self.id = None
+
 
     def get_name(self) -> str:
         """

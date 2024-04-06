@@ -13,24 +13,47 @@ class PokeTeam:
     POKE_LIST = list(get_all_pokemon_types())
 
     def __init__(self):
-        self.team = []
+        self.team = ArrayR(self.TEAM_LIMIT)
+        for i in range(self.TEAM_LIMIT):
+            self.team[i] = None
 
-    def choose_manually(self, pokemon):
-        if len(pokemon) <= self.TEAM_LIMIT:
-            pokemon_classes = {cls.__name__: cls for cls in self.POKE_LIST}
-            self.team = [pokemon_classes[name]() for name in pokemon.name if name in pokemon_classes]
-        else:
-            print(f"You can only have {self.TEAM_LIMIT} pokemon in your team")
+    def choose_manually(self):
+        i = 0
+        while i < self.TEAM_LIMIT:
+            name = input(f"Enter the name of Pokemon #{i+1} (or 'Done' to break): ")
+            if name.lower() == 'done':
+                break
+            if name in [pokemon.__name__ for pokemon in self.POKE_LIST]:
+                PokemonClass = next(pokemon for pokemon in self.POKE_LIST if pokemon.__name__ == name)
+                self.team[i] = PokemonClass()
+                self.team[i].id = i
+                i += 1
+            else:
+                print(f"No Pokemon named {name} found.")
 
     def choose_randomly(self) -> None:
-        self.team = [pokemon() for pokemon in random.sample(self.POKE_LIST, self.TEAM_LIMIT)]
+        for i in range(self.TEAM_LIMIT):
+            self.team[i] = random.choice(self.POKE_LIST)()
+            self.team[i].id = i
+        # shuffled_pokemon = self.POKE_LIST[:]
+        # for i in range(len(shuffled_pokemon) - 1, 0, -1):
+        #     j = int(i * random.random())
+        #     shuffled_pokemon[i], shuffled_pokemon[j] = shuffled_pokemon[j], shuffled_pokemon[i]
+        # for i in range(self.TEAM_LIMIT):
+        #     self.team[i] = shuffled_pokemon[i]()
+        #     self.team[i].id = i
     
     def regenerate_team(self) -> None:
         for i in range(len(self.team)):
+            print(self.team[i])
+            print(self.team[i].get_health())
             pokemon = type(self.team[i])
-            self.team[i].health = pokemon().health
+            # self.team[i].health = pokemon().health
+            print(self.team[i])
+            print(self.team[i].get_health())
         
     def assemble_team(self, battle_mode: BattleMode) -> None:
+        self.regenerate_team()
         team = self.team
 
         if battle_mode == BattleMode.SET:
@@ -114,8 +137,8 @@ class Trainer:
 if __name__ == '__main__':
     t = Trainer('Ash')
     print(t)
-    t.pick_team("random")
+    t.pick_team("manual")
     print(t)
     print(t.get_team())
-    print(t.get_team().assemble_team(BattleMode.SET))
+    # print(t.get_team().assemble_team(BattleMode.SET))
     print("test")

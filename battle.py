@@ -61,18 +61,7 @@ class Battle:
                 pokemon_1.level_up()
                 pokemon_2 = team_2.pop()
 
-            while pokemon_1.get_health() > 0 and pokemon_2.get_health() > 0:
-                if pokemon_1.get_speed() > pokemon_2.get_speed():
-                    pokemon_2.health -= pokemon_1.attack(pokemon_2)
-                    if pokemon_2.get_health() > 0:
-                        pokemon_1.health -= pokemon_2.attack(pokemon_1)
-                elif pokemon_1.get_speed() < pokemon_2.get_speed():
-                    pokemon_1.health -= pokemon_2.attack(pokemon_1)
-                    if pokemon_1.get_health() > 0:
-                        pokemon_2.health -= pokemon_1.attack(pokemon_2)
-                elif pokemon_1.get_speed() == pokemon_2.get_speed():
-                    pokemon_2.health -= pokemon_1.attack(pokemon_2)
-                    pokemon_1.health -= pokemon_2.attack(pokemon_1)
+            self.one_on_one(pokemon_1, pokemon_2, "Attack", "Attack")
 
         print("\n team1")
         print(team_1)
@@ -129,11 +118,37 @@ class Battle:
         elif len(team_2) > 0:
             return self.trainer_2
         return None
+    
+    def one_on_one(self, pokemon_1, pokemon_2, action_1: str, action_2: str):
+        if action_1.upper == "SPECIAL":
+            self.perform_special(pokemon_1)
+            if action_2.upper != "SPECIAL":
+                pokemon_1.health -= pokemon_2.attack(pokemon_1)
+        if action_2.upper == "SPECIAL":
+            self.perform_special(pokemon_2)
+            if action_1.upper != "SPECIAL":
+                pokemon_2.health -= pokemon_1.attack(pokemon_2)
+        else:
+            if pokemon_1.get_speed() > pokemon_2.get_speed():
+                pokemon_2.health -= pokemon_1.attack(pokemon_2)
+                if pokemon_2.get_health() > 0:
+                    pokemon_1.health -= pokemon_2.attack(pokemon_1)
+            elif pokemon_1.get_speed() < pokemon_2.get_speed():
+                pokemon_1.health -= pokemon_2.attack(pokemon_1)
+                if pokemon_1.get_health() > 0:
+                    pokemon_2.health -= pokemon_1.attack(pokemon_2)
+            elif pokemon_1.get_speed() == pokemon_2.get_speed():
+                pokemon_2.health -= pokemon_1.attack(pokemon_2)
+                pokemon_1.health -= pokemon_2.attack(pokemon_1)
+
+    def perform_special(self, pokemon):
+        # Implement the special action here
+        print(f"{pokemon.get_name()} performed a special action")
 
 
 if __name__ == '__main__':
     t1 = Trainer('Ash')
-    t1.pick_team("random")
+    t1.pick_team("manual")
 
     t2 = Trainer('Gary')
     t2.pick_team('random')
