@@ -68,18 +68,18 @@ class Battle:
 
         while not team_1.is_empty() and not team_2.is_empty():
             pokemon_1 = team_1.pop()
-            self.trainer_1team_count -= 1
+            self.trainer_1.team.team_count -= 1
             pokemon_2 = team_2.pop()
-            self.trainer_2.team_count -= 1
+            self.trainer_2.team.team_count -= 1
 
             self.one_on_one(pokemon_1, pokemon_2)
 
             if pokemon_1.is_alive():
                 team_1.push(pokemon_1)
-                self.trainer_1.team_count += 1
+                self.trainer_1.team.team_count += 1
             if pokemon_2.is_alive():
                 team_2.push(pokemon_2)
-                self.trainer_2.team_count += 1
+                self.trainer_2.team.team_count += 1
 
         print("\n team1")
         print(team_1)
@@ -89,11 +89,11 @@ class Battle:
         print(team_2.is_empty())
         self.trainer_1.team = team_1
         self.trainer_2.team = team_2
-        self.trainer_1.team = ArrayR(self.trainer_1.team_count)
-        for i in range(self.trainer_1.team_count):
+        self.trainer_1.team = ArrayR(self.trainer_1.team.team_count)
+        for i in range(self.trainer_1.team.team_count):
             self.trainer_1.team[i] = team_1.pop()
-        self.trainer_2.team = ArrayR(self.trainer_2.team_count)
-        for i in range(self.trainer_2.team_count):
+        self.trainer_2.team = ArrayR(self.trainer_2.team.team_count)
+        for i in range(self.trainer_2.team.team_count):
             self.trainer_2.team[i] = team_2.pop()
 
         return self.trainer_2.team if team_1.is_empty() else self.trainer_1.team if team_2.is_empty() else None

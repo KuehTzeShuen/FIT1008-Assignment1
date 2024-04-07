@@ -57,18 +57,21 @@ class PokeTeam:
 
         if battle_mode == BattleMode.SET:
             temp_team = ArrayR(self.TEAM_LIMIT)
-            for i in range(len(self.team)):
-                pokemon = self.team.pop()
+            for i in range(len(self.set_team)):
+                pokemon = self.set_team.pop()
                 print(pokemon.health)
                 pokemon_type = type(pokemon)
-                health_multiplier = 1.5 ** len(pokemon.get_evolution())
+                print(pokemon.name)
+                current_stage_index = pokemon.get_evolution().index(pokemon.name)
+                health_multiplier = 1.5 ** current_stage_index
+                print(pokemon.get_evolution())
                 pokemon.health = pokemon_type().health * health_multiplier
                 temp_team[i] = pokemon
-                for pokemon in temp_team:
-                    print(pokemon)
-                    print(pokemon.get_health())
-                    self.team.push(pokemon)
-                del temp_team
+            for pokemon in temp_team:
+                print("here me")
+                print(pokemon)
+                print(pokemon.health)
+                self.set_team.push(pokemon)
 
         else:
             for pokemon in self.team:
