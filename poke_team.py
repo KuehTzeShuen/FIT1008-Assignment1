@@ -54,45 +54,55 @@ class PokeTeam:
         #     self.team[i].id = i
     
     def regenerate_team(self, battle_mode: BattleMode) -> None:
-        new_team = ArrayR(self.TEAM_LIMIT)
 
         if battle_mode == BattleMode.SET:
+            temp_team = ArrayR(self.TEAM_LIMIT)
             for i in range(len(self.team)):
                 pokemon = self.team.pop()
+                print(pokemon.health)
                 pokemon_type = type(pokemon)
                 health_multiplier = 1.5 ** len(pokemon.get_evolution())
                 pokemon.health = pokemon_type().health * health_multiplier
-                new_team[i] = pokemon
+                temp_team[i] = pokemon
+                for pokemon in temp_team:
+                    print(pokemon)
+                    print(pokemon.get_health())
+                    self.team.push(pokemon)
+                del temp_team
 
-        elif battle_mode == BattleMode.ROTATE:
-            for i in range(len(self.team)):
-                pokemon = self.team.serve()
+        else:
+            for pokemon in self.team:
                 pokemon_type = type(pokemon)
                 health_multiplier = 1.5 ** len(pokemon.get_evolution())
                 pokemon.health = pokemon_type().health * health_multiplier
-                new_team[i] = pokemon
 
-        self.team = new_team
                     
         for i in range(len(self.team)):
             print(self.team[i])
             print(self.team[i].get_health())
-            pokemon = type(self.team[i])
-            self.team[i].health = pokemon().health
             print(self.team[i])
             print(self.team[i].get_health())
         
     def assemble_team(self, battle_mode: BattleMode) -> None:
         #self.regenerate_team()
         team = self.team
+        print("assembling team")
+        print(len(team))
+        for i in range(len(team)):
+            print(team[i])
 
         if battle_mode == BattleMode.SET:
-            self.team = ArrayStack(team.__len__())
-            for pokemon in reversed(team):
-                # print(pokemon.name)
-                self.team.push(pokemon)
-            # print("TESTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
-            # print(self.team)
+            self.set_team = ArrayStack(team.__len__())
+            for i in range(len(team)):
+                pokemon = team[i]
+                print(f"pushing {pokemon}")
+                self.set_team.push(pokemon)
+
+            print("assemble set success")
+            print("heres number 1:")
+            print("damn")
+            return self.set_team
+
         elif battle_mode == BattleMode.ROTATE:
             self.team = CircularQueue(self.team.__len__())
             for pokemon in team:
@@ -103,15 +113,20 @@ class PokeTeam:
                 self.team.add(pokemon)
         else:
             raise ValueError(f"Invalid battle mode")
-        return self.team
         
     def special(self, battle_mode: BattleMode) -> None:
         if battle_mode == BattleMode.SET:
-            mid_index = len(self.team) // 2
-            self.team[:mid_index] = reversed(self.team[:mid_index])
+            mid_index = len(self.set_team) // 2
+            temp_array = ArrayR(mid_index)
+            for i in range(mid_index):
+                temp_array[i] = self.set_team.pop()
+            for i in range(mid_index - 1, -1, -1):
+                self.set_team.push(temp_array[i])
+
         elif battle_mode == BattleMode.ROTATE:
             mid_index = len(self.team) // 2
             self.team[mid_index:] = reversed(self.team[mid_index:])
+
         elif battle_mode == BattleMode.OPTIMISE:
             self.team = self.team[::-1]
         else:
@@ -124,11 +139,10 @@ class PokeTeam:
         return len(self.team)
 
     def __str__(self):
-        result = "Your team is: \n"
-        for pokemon in self.team:
-            result += f"{pokemon.name}\n"
+        result = ""
+        for i in range(self.team_count):
+            result += str(self.team[i]) + "\n"
         return result
-        # return ', '.join(str(item) for item in reversed(self._data))
 
 class Trainer:
 
@@ -174,7 +188,7 @@ class Trainer:
 if __name__ == '__main__':
     t = Trainer('Ash')
     print(t)
-    t.pick_team("manual")
+    t.pick_team("random")
     print(t)
     print(t.get_team())
     # print(t.get_team().assemble_team(BattleMode.SET))

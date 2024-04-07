@@ -1,4 +1,5 @@
 from math import ceil
+from data_structures.referential_array import ArrayR
 from poke_team import Trainer, PokeTeam
 from typing import Tuple
 from battle_mode import BattleMode
@@ -22,15 +23,25 @@ class Battle:
             winning_team = self.rotate_battle()
         elif self.battle_mode == BattleMode.OPTIMISE:
             return self.optimise_battle()
+        print("congrats winner")
         print(winning_team)
-        if winning_team is self.trainer_1.get_team():
+        print("congrats winner")
+        if winning_team == self.trainer_1.get_team():
             return self.trainer_1
-        elif winning_team is self.trainer_2.get_team():
+        elif winning_team == self.trainer_2.get_team():
             return self.trainer_2
         return None
 
     def _create_teams(self) -> Tuple[PokeTeam, PokeTeam]:
         print("test2teststart")
+        if all(pokemon is None for pokemon in self.trainer_1.team):
+            self.trainer_1.pick_team("random")
+            print("team 1 was empty")
+        if all(pokemon is None for pokemon in self.trainer_2.team):
+            self.trainer_2.pick_team("random")
+            print("team 2 was empty")
+
+        print("progress at least")
         if self.battle_mode == BattleMode.SET:
             self.team1 = self.trainer_1.get_team().assemble_team(BattleMode.SET)
             self.team2 = self.trainer_2.get_team().assemble_team(BattleMode.SET)
@@ -47,7 +58,6 @@ class Battle:
         #     team_1 = self.trainer_1.get_team().to_priority_queue(self.criterion)
         #     team_2 = self.trainer_2.get_team().to_priority_queue(self.criterion)
         print("test2")
-        print(self.trainer_1.team)
         print("test2testend")
         return self.team1, self.team2
 
@@ -56,22 +66,37 @@ class Battle:
         
         print("here")
 
-        while len(team_1) > 0 and len(team_2) > 0:
+        while not team_1.is_empty() and not team_2.is_empty():
             pokemon_1 = team_1.pop()
+            self.trainer_1team_count -= 1
             pokemon_2 = team_2.pop()
+            self.trainer_2.team_count -= 1
 
             self.one_on_one(pokemon_1, pokemon_2)
 
             if pokemon_1.is_alive():
                 team_1.push(pokemon_1)
+                self.trainer_1.team_count += 1
             if pokemon_2.is_alive():
                 team_2.push(pokemon_2)
+                self.trainer_2.team_count += 1
 
         print("\n team1")
         print(team_1)
         print("\n team2")
         print(team_2)
-        return team_2 if team_1.is_empty() else team_1 if team_2.is_empty() else None
+        print(team_1.is_empty())
+        print(team_2.is_empty())
+        self.trainer_1.team = team_1
+        self.trainer_2.team = team_2
+        self.trainer_1.team = ArrayR(self.trainer_1.team_count)
+        for i in range(self.trainer_1.team_count):
+            self.trainer_1.team[i] = team_1.pop()
+        self.trainer_2.team = ArrayR(self.trainer_2.team_count)
+        for i in range(self.trainer_2.team_count):
+            self.trainer_2.team[i] = team_2.pop()
+
+        return self.trainer_2.team if team_1.is_empty() else self.trainer_1.team if team_2.is_empty() else None
 
     def rotate_battle(self) -> PokeTeam | None:
         team_1, team_2 = self._create_teams()
@@ -87,7 +112,7 @@ class Battle:
             if pokemon_2.is_alive():
                 team_2.append(pokemon_2)
 
-        return self.trainer_2 if team_1.is_empty() else self.trainer_1 if team_2.is_empty() else None
+        return team_2 if team_1.is_empty() else team_1 if team_2.is_empty() else None
 
 
     def optimise_battle(self) -> PokeTeam | None:
@@ -121,20 +146,14 @@ class Battle:
         return team
     
     def one_on_one(self, pokemon_1, pokemon_2):
+        self.trainer_1.register_pokemon(pokemon_2)
+        self.trainer_2.register_pokemon(pokemon_1)
         faster_pokemon, slower_pokemon, faster_trainer, slower_trainer = (pokemon_1, pokemon_2, self.trainer_1, self.trainer_2) if pokemon_1.get_speed() >= pokemon_2.get_speed() else  (pokemon_2, pokemon_1, self.trainer_2, self.trainer_1) 
-        #faster_action = input(f"{faster_pokemon.get_name()}, choose your action: 'SPECIAL' or 'ATTACK'")
-        #slower_action = input(f"{slower_pokemon.get_name()}, choose your action: 'SPECIAL' or 'ATTACK'")
-        faster_action = "ATTACK"
-        slower_action = "ATTACK"
-        if faster_action.upper() == "SPECIAL":
-            self.perform_special(faster_action)
-        if slower_action.upper() == "SPECIAL":
-            self.perform_special(slower_action)
 
         print(f"{faster_pokemon.get_name()} has {faster_pokemon.health} health")
         print(f"{slower_pokemon.get_name()} has {slower_pokemon.health} health")
-        if faster_action.upper() == "ATTACK":
-            faster_pokemon.calculate_damage(slower_pokemon, faster_trainer.get_pokedex_completion()/slower_trainer.get_pokedex_completion())
+        
+        faster_pokemon.calculate_damage(slower_pokemon, faster_trainer.get_pokedex_completion()/slower_trainer.get_pokedex_completion())
                 # print(f"{faster_pokemon.get_name()} attacked {slower_pokemon.get_name()} for {faster_pokemon.attack(slower_pokemon)} damage.")
                 # if TypeEffectiveness.get_effectiveness(faster_pokemon.poketype, slower_pokemon.poketype) > 1:
                 #     print("It was super effective!!!!!!!!!!!!!!!!!!")
@@ -143,7 +162,7 @@ class Battle:
                 # print(f"{slower_pokemon.get_name()} has {slower_pokemon.health} health left")
                 # if not slower_pokemon.is_alive():
                 #     print(f"{slower_pokemon.get_name()} fainted")             
-        if slower_action.upper() == "ATTACK" and (slower_pokemon.is_alive() or faster_pokemon.get_speed() == slower_pokemon.get_speed()):
+        if slower_pokemon.is_alive() or faster_pokemon.get_speed() == slower_pokemon.get_speed():
             slower_pokemon.calculate_damage(faster_pokemon, slower_trainer.get_pokedex_completion()/faster_trainer.get_pokedex_completion())
             # print(f"{slower_pokemon.get_name()} attacked {faster_pokemon.get_name()} for {slower_pokemon.attack(faster_pokemon)} damage")
             # if TypeEffectiveness.get_effectiveness(faster_pokemon.poketype, slower_pokemon.poketype) > 1:
