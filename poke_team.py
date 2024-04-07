@@ -12,16 +12,17 @@ class PokeTeam:
 
     TEAM_LIMIT = 6
     POKE_LIST = get_all_pokemon_types()
+    CRITERION_LIST = ["health", "defence", "battle_power", "speed", "level"]
 
     def __init__(self):
-        self.team = None
-        self.TEAM_LIMIT = PokeTeam.TEAM_LIMIT
+        self.team = ArrayR(self.TEAM_LIMIT)
+        self.team_count = 0
 
     def choose_manually(self):
-        self.team = ArrayR(PokeTeam.TEAM_LIMIT)
-        print(f"Choose your team of {PokeTeam.TEAM_LIMIT} Pokemon.")
+        self.team = ArrayR(self.TEAM_LIMIT)
+        print(f"Choose your team of {self.TEAM_LIMIT} Pokemon.")
         i = 0
-        while i < PokeTeam.TEAM_LIMIT:
+        while i < self.TEAM_LIMIT:
             name = input(f"Enter the name of Pokemon #{i+1}: ")
             if name in [pokemon.__name__ for pokemon in self.POKE_LIST]:
                 PokemonClass = next(pokemon for pokemon in self.POKE_LIST if pokemon.__name__ == name)
@@ -32,6 +33,7 @@ class PokeTeam:
                 print(f"No Pokemon named {name} found.")
 
     def choose_randomly(self) -> None:
+        self.team = ArrayR(self.TEAM_LIMIT)
         all_pokemon = get_all_pokemon_types()
         self.team_count = 0
         for i in range(self.TEAM_LIMIT):
@@ -52,26 +54,26 @@ class PokeTeam:
         #     self.team[i].id = i
     
     def regenerate_team(self, battle_mode: BattleMode) -> None:
+        new_team = ArrayR(self.TEAM_LIMIT)
+
         if battle_mode == BattleMode.SET:
-            temp_stack = ArrayStack()
-            while not self.team.is_empty():
+            for i in range(len(self.team)):
                 pokemon = self.team.pop()
                 pokemon_type = type(pokemon)
-                health_multiplier = 1.5 ** (pokemon.get_evolution() - 1)
+                health_multiplier = 1.5 ** len(pokemon.get_evolution())
                 pokemon.health = pokemon_type().health * health_multiplier
-                temp_stack.push(pokemon)
-            while temp_stack:
-                self.team.push(temp_stack.pop())
-            del temp_stack
+                new_team[i] = pokemon
 
         elif battle_mode == BattleMode.ROTATE:
-            for _ in range(len(self.team)):
+            for i in range(len(self.team)):
                 pokemon = self.team.serve()
                 pokemon_type = type(pokemon)
-                health_multiplier = 1.5 ** (pokemon.get_evolution() - 1)
+                health_multiplier = 1.5 ** len(pokemon.get_evolution())
                 pokemon.health = pokemon_type().health * health_multiplier
-                self.team.append(pokemon)
-                
+                new_team[i] = pokemon
+
+        self.team = new_team
+                    
         for i in range(len(self.team)):
             print(self.team[i])
             print(self.team[i].get_health())
