@@ -1,3 +1,4 @@
+from math import ceil
 from poke_team import Trainer, PokeTeam
 from typing import Tuple
 from battle_mode import BattleMode
@@ -7,7 +8,7 @@ from pokemon_base import TypeEffectiveness
 
 class Battle:
 
-    def __init__(self, trainer_1: Trainer, trainer_2: Trainer, battle_mode: BattleMode, criterion: None) -> None:
+    def __init__(self, trainer_1: Trainer, trainer_2: Trainer, battle_mode: BattleMode, criterion: str = None) -> None:
         self.trainer_1 = trainer_1
         self.trainer_2 = trainer_2
         self.battle_mode = battle_mode
@@ -30,7 +31,6 @@ class Battle:
 
     def _create_teams(self) -> Tuple[PokeTeam, PokeTeam]:
         print("test2teststart")
-        print(self.trainer_1.team)
         if self.battle_mode == BattleMode.SET:
             self.team1 = self.trainer_1.get_team().assemble_team(BattleMode.SET)
             self.team2 = self.trainer_2.get_team().assemble_team(BattleMode.SET)
@@ -71,7 +71,7 @@ class Battle:
         print(team_1)
         print("\n team2")
         print(team_2)
-        return self.trainer_2 if team_1.is_empty() else self.trainer_1 if team_2.is_empty() else None
+        return team_2 if team_1.is_empty() else team_1 if team_2.is_empty() else None
 
     def rotate_battle(self) -> PokeTeam | None:
         team_1, team_2 = self._create_teams()
@@ -121,8 +121,7 @@ class Battle:
         return team
     
     def one_on_one(self, pokemon_1, pokemon_2):
-        faster_pokemon = pokemon_1 if pokemon_1.get_speed() >= pokemon_2.get_speed() else pokemon_2
-        slower_pokemon = pokemon_2 if pokemon_2.get_speed() >= pokemon_1.get_speed() else pokemon_1
+        faster_pokemon, slower_pokemon, faster_trainer, slower_trainer = (pokemon_1, pokemon_2, self.trainer_1, self.trainer_2) if pokemon_1.get_speed() >= pokemon_2.get_speed() else  (pokemon_2, pokemon_1, self.trainer_2, self.trainer_1) 
         #faster_action = input(f"{faster_pokemon.get_name()}, choose your action: 'SPECIAL' or 'ATTACK'")
         #slower_action = input(f"{slower_pokemon.get_name()}, choose your action: 'SPECIAL' or 'ATTACK'")
         faster_action = "ATTACK"
@@ -135,28 +134,30 @@ class Battle:
         print(f"{faster_pokemon.get_name()} has {faster_pokemon.health} health")
         print(f"{slower_pokemon.get_name()} has {slower_pokemon.health} health")
         if faster_action.upper() == "ATTACK":
-            slower_pokemon.health -= faster_pokemon.attack(slower_pokemon)
-            print(f"{faster_pokemon.get_name()} attacked {slower_pokemon.get_name()} for {faster_pokemon.attack(slower_pokemon)} damage.")
-            if TypeEffectiveness.get_effectiveness(faster_pokemon.poketype, slower_pokemon.poketype) > 1:
-                print("It was super effective!!!!!!!!!!!!!!!!!!")
-            elif TypeEffectiveness.get_effectiveness(faster_pokemon.poketype, slower_pokemon.poketype) < 1:
-                print("It was not very effective...........................")
-            print(f"{slower_pokemon.get_name()} has {slower_pokemon.health} health left")
-            if not slower_pokemon.is_alive():
-                print(f"{slower_pokemon.get_name()} fainted")
-                        
+            faster_pokemon.calculate_damage(slower_pokemon, faster_trainer.get_pokedex_completion()/slower_trainer.get_pokedex_completion())
+                # print(f"{faster_pokemon.get_name()} attacked {slower_pokemon.get_name()} for {faster_pokemon.attack(slower_pokemon)} damage.")
+                # if TypeEffectiveness.get_effectiveness(faster_pokemon.poketype, slower_pokemon.poketype) > 1:
+                #     print("It was super effective!!!!!!!!!!!!!!!!!!")
+                # elif TypeEffectiveness.get_effectiveness(faster_pokemon.poketype, slower_pokemon.poketype) < 1:
+                #     print("It was not very effective...........................")
+                # print(f"{slower_pokemon.get_name()} has {slower_pokemon.health} health left")
+                # if not slower_pokemon.is_alive():
+                #     print(f"{slower_pokemon.get_name()} fainted")             
         if slower_action.upper() == "ATTACK" and (slower_pokemon.is_alive() or faster_pokemon.get_speed() == slower_pokemon.get_speed()):
-            faster_pokemon.health -= slower_pokemon.attack(faster_pokemon)
-            print(f"{slower_pokemon.get_name()} attacked {faster_pokemon.get_name()} for {slower_pokemon.attack(faster_pokemon)} damage")
-            if TypeEffectiveness.get_effectiveness(faster_pokemon.poketype, slower_pokemon.poketype) > 1:
-                print("It was super effective!!!!!!!!!!!!!!!!!!")
-            elif TypeEffectiveness.get_effectiveness(faster_pokemon.poketype, slower_pokemon.poketype) < 1:
-                print("It was not very effective.............................")
-            print(f"{faster_pokemon.get_name()} has {faster_pokemon.health} health left")
-            if not faster_pokemon.is_alive():
-                print(f"{faster_pokemon.get_name()} fainted")
+            slower_pokemon.calculate_damage(faster_pokemon, slower_trainer.get_pokedex_completion()/faster_trainer.get_pokedex_completion())
+            # print(f"{slower_pokemon.get_name()} attacked {faster_pokemon.get_name()} for {slower_pokemon.attack(faster_pokemon)} damage")
+            # if TypeEffectiveness.get_effectiveness(faster_pokemon.poketype, slower_pokemon.poketype) > 1:
+            #     print("It was super effective!!!!!!!!!!!!!!!!!!")
+            # elif TypeEffectiveness.get_effectiveness(faster_pokemon.poketype, slower_pokemon.poketype) < 1:
+            #     print("It was not very effective.............................")
+            # print(f"{faster_pokemon.get_name()} has {faster_pokemon.health} health left")
+            # if not faster_pokemon.is_alive():
+            #     print(f"{faster_pokemon.get_name()} fainted")
         
-        if faster_pokemon.is_alive() and not slower_pokemon.is_alive():
+        if faster_pokemon.is_alive() and slower_pokemon.is_alive():
+            faster_pokemon.health -= 1
+            slower_pokemon.health -= 1
+        elif faster_pokemon.is_alive() and not slower_pokemon.is_alive():
             print(f"{slower_pokemon.get_name()} fainted")
             faster_pokemon.level_up()
             print(f"{faster_pokemon.get_name()} leveled up to level {faster_pokemon.get_level()}")
@@ -170,7 +171,6 @@ class Battle:
         # Implement the special action here
         print(f"{pokemon.get_name()} performed a special action")
 
-
 if __name__ == '__main__':
     t1 = Trainer('Ash')
     t1.pick_team("random")
@@ -183,7 +183,7 @@ if __name__ == '__main__':
     print(t2)
     print(t2.get_team())
     print("test")
-    b = Battle(t1, t2, BattleMode.OPTIMISE, "health")
+    b = Battle(t1, t2, BattleMode.SET, "health")
     winner = b.commence_battle()
 
     if winner is None:

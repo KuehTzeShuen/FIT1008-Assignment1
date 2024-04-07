@@ -11,19 +11,18 @@ from battle_mode import BattleMode
 class PokeTeam:
 
     TEAM_LIMIT = 6
-    POKE_LIST = list(get_all_pokemon_types())
+    POKE_LIST = get_all_pokemon_types()
 
     def __init__(self):
-        self.team = ArrayR(self.TEAM_LIMIT)
-        for i in range(self.TEAM_LIMIT):
-            self.team[i] = None
+        self.team = None
+        self.TEAM_LIMIT = PokeTeam.TEAM_LIMIT
 
     def choose_manually(self):
+        self.team = ArrayR(PokeTeam.TEAM_LIMIT)
+        print(f"Choose your team of {PokeTeam.TEAM_LIMIT} Pokemon.")
         i = 0
-        while i < self.TEAM_LIMIT:
-            name = input(f"Enter the name of Pokemon #{i+1} (or 'Done' to break): ")
-            if name.lower() == 'done':
-                break
+        while i < PokeTeam.TEAM_LIMIT:
+            name = input(f"Enter the name of Pokemon #{i+1}: ")
             if name in [pokemon.__name__ for pokemon in self.POKE_LIST]:
                 PokemonClass = next(pokemon for pokemon in self.POKE_LIST if pokemon.__name__ == name)
                 self.team[i] = PokemonClass()
@@ -33,9 +32,17 @@ class PokeTeam:
                 print(f"No Pokemon named {name} found.")
 
     def choose_randomly(self) -> None:
+        all_pokemon = get_all_pokemon_types()
+        self.team_count = 0
         for i in range(self.TEAM_LIMIT):
-            self.team[i] = random.choice(self.POKE_LIST)()
-            self.team[i].id = i
+            rand_int = random.randint(0, len(all_pokemon)-1)
+            self.team[i] = all_pokemon[rand_int]()
+            self.team_count += 1
+        # self.team = ArrayR(PokeTeam.TEAM_LIMIT)
+        # for i in range(PokeTeam.TEAM_LIMIT):
+        #     self.team[i] = random.choice(self.POKE_LIST)()
+        #     self.team[i].id = i
+
         # shuffled_pokemon = self.POKE_LIST[:]
         # for i in range(len(shuffled_pokemon) - 1, 0, -1):
         #     j = int(i * random.random())
@@ -44,17 +51,37 @@ class PokeTeam:
         #     self.team[i] = shuffled_pokemon[i]()
         #     self.team[i].id = i
     
-    def regenerate_team(self) -> None:
+    def regenerate_team(self, battle_mode: BattleMode) -> None:
+        if battle_mode == BattleMode.SET:
+            temp_stack = ArrayStack()
+            while not self.team.is_empty():
+                pokemon = self.team.pop()
+                pokemon_type = type(pokemon)
+                health_multiplier = 1.5 ** (pokemon.get_evolution() - 1)
+                pokemon.health = pokemon_type().health * health_multiplier
+                temp_stack.push(pokemon)
+            while temp_stack:
+                self.team.push(temp_stack.pop())
+            del temp_stack
+
+        elif battle_mode == BattleMode.ROTATE:
+            for _ in range(len(self.team)):
+                pokemon = self.team.serve()
+                pokemon_type = type(pokemon)
+                health_multiplier = 1.5 ** (pokemon.get_evolution() - 1)
+                pokemon.health = pokemon_type().health * health_multiplier
+                self.team.append(pokemon)
+                
         for i in range(len(self.team)):
             print(self.team[i])
             print(self.team[i].get_health())
             pokemon = type(self.team[i])
-            # self.team[i].health = pokemon().health
+            self.team[i].health = pokemon().health
             print(self.team[i])
             print(self.team[i].get_health())
         
     def assemble_team(self, battle_mode: BattleMode) -> None:
-        self.regenerate_team()
+        #self.regenerate_team()
         team = self.team
 
         if battle_mode == BattleMode.SET:
@@ -111,12 +138,15 @@ class Trainer:
     def pick_team(self, method: str) -> None:
         if method == "random":
             self.team.choose_randomly()
+            for pokemon in self.team:
+                self.register_pokemon(pokemon)
         elif method == "manual":
             self.team.choose_manually()
+            for pokemon in self.team:
+                self.register_pokemon(pokemon)
         else:
             print("Invalid method")
-        for pokemon in self.team:
-            self.register_pokemon(pokemon)
+        
 
     def get_team(self) -> PokeTeam:
         return self.team

@@ -3,6 +3,7 @@ This module contains PokeType, TypeEffectiveness and an abstract version of the 
 """
 from abc import ABC
 from enum import Enum
+from math import ceil
 
 class PokeType(Enum):
     """
@@ -182,6 +183,23 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         """
         effective_damage = damage/2 if damage < self.get_defence() else damage
         self.health = self.health - effective_damage
+
+    def calculate_damage(self, defender, pokedex_ratio_multiplier: float) -> None:
+        attack = self.attack(defender)
+        defence = defender.defence
+        if defence < attack / 2:
+            damage = attack - defence
+        elif defence < attack:
+            damage = ceil(attack * 5/8 - defence / 4)
+        else:
+            damage = ceil(attack / 4)
+
+        effectiveness = TypeEffectiveness.get_effectiveness(self.poketype, defender.poketype)
+        damage *= effectiveness
+
+        damage = ceil(damage * pokedex_ratio_multiplier)
+
+        defender.defend(damage)
 
     def level_up(self) -> None:
         """
