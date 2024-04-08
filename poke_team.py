@@ -53,12 +53,12 @@ class PokeTeam:
         #     self.team[i] = shuffled_pokemon[i]()
         #     self.team[i].id = i
     
-    def regenerate_team(self, battle_mode: BattleMode) -> None:
+    def regenerate_team(self, battle_mode: BattleMode, criterion: str = None) -> None:
 
         if battle_mode == BattleMode.SET:
             temp_team = ArrayR(self.TEAM_LIMIT)
-            for i in range(len(self.set_team)):
-                pokemon = self.set_team.pop()
+            for i in range(len(self.team)):
+                pokemon = self.team.pop()
                 print(pokemon.health)
                 pokemon_type = type(pokemon)
                 print(pokemon.name)
@@ -71,45 +71,53 @@ class PokeTeam:
                 print("here me")
                 print(pokemon)
                 print(pokemon.health)
-                self.set_team.push(pokemon)
+                self.team.push(pokemon)
 
-        else:
-            for pokemon in self.team:
+        elif battle_mode == BattleMode.ROTATE:
+            for i in range(len(self.team)):
+                pokemon = self.team.serve()
                 pokemon_type = type(pokemon)
-                health_multiplier = 1.5 ** len(pokemon.get_evolution())
+                current_stage_index = pokemon.get_evolution().index(pokemon.name)
+                health_multiplier = 1.5 ** current_stage_index
                 pokemon.health = pokemon_type().health * health_multiplier
+                self.team.append(pokemon)
 
                     
-        for i in range(len(self.team)):
-            print(self.team[i])
-            print(self.team[i].get_health())
-            print(self.team[i])
-            print(self.team[i].get_health())
+        # for i in range(len(self.team)):
+        #     print(self.team[i])
+        #     print(self.team[i].get_health())
+        #     print(self.team[i])
+        #     print(self.team[i].get_health())
         
     def assemble_team(self, battle_mode: BattleMode) -> None:
         #self.regenerate_team()
-        team = self.team
+        #team = self.team.copy()
         print("assembling team")
-        print(len(team))
-        for i in range(len(team)):
-            print(team[i])
+        # for i in range(len(team)):
+        #     print(team[i])
 
         if battle_mode == BattleMode.SET:
-            self.set_team = ArrayStack(team.__len__())
-            for i in range(len(team)):
-                pokemon = team[i]
+            team = ArrayStack(self.team.__len__())
+            for i in range(len(self.team)):
+                pokemon = self.team[i]
                 print(f"pushing {pokemon}")
-                self.set_team.push(pokemon)
+                team.push(pokemon)
 
             print("assemble set success")
             print("heres number 1:")
             print("damn")
-            return self.set_team
+            self.team = team
+            self.team.team_count = self.team.__len__()
 
         elif battle_mode == BattleMode.ROTATE:
+            team = CircularQueue(self.team.__len__())
+            for i in range(len(self.team)):
+                pokemon = self.team[i]
+                print(f"pushing {pokemon}")
+                team.append(pokemon)
             self.team = CircularQueue(self.team.__len__())
-            for pokemon in team:
-                self.team.append(pokemon)
+            self.team = team
+
         elif battle_mode == BattleMode.OPTIMISE:
             self.team = ArraySortedList()
             for pokemon in team:
@@ -117,18 +125,32 @@ class PokeTeam:
         else:
             raise ValueError(f"Invalid battle mode")
         
+    def assign_team(self, criterion: str) -> None:
+        
+        team = ArraySortedList(self.team.__len__())
+        for i in range(len(self.team)):
+            pokemon = self.team[i]
+            for j in range(i):
+                if getattr(pokemon, criterion) < getattr(team[j], criterion):
+                    team.add(j, pokemon)
+                    break
+            else:
+                team.append(pokemon)
+        self.team = team
+        
     def special(self, battle_mode: BattleMode) -> None:
         if battle_mode == BattleMode.SET:
-            mid_index = len(self.set_team) // 2
+            mid_index = len(self.team) // 2
             temp_array = ArrayR(mid_index)
             for i in range(mid_index):
-                temp_array[i] = self.set_team.pop()
+                temp_array[i] = self.team.pop()
             for i in range(mid_index - 1, -1, -1):
-                self.set_team.push(temp_array[i])
+                self.team.push(temp_array[i])
 
         elif battle_mode == BattleMode.ROTATE:
             mid_index = len(self.team) // 2
-            self.team[mid_index:] = reversed(self.team[mid_index:])
+            for i in range(mid_index):
+                self.team.append(self.team.pop())
 
         elif battle_mode == BattleMode.OPTIMISE:
             self.team = self.team[::-1]
@@ -155,11 +177,11 @@ class Trainer:
         self.pokedex = BSet()
 
     def pick_team(self, method: str) -> None:
-        if method == "random":
+        if method.upper() == "RANDOM":
             self.team.choose_randomly()
             for pokemon in self.team:
                 self.register_pokemon(pokemon)
-        elif method == "manual":
+        elif method.upper() == "MANUAL":
             self.team.choose_manually()
             for pokemon in self.team:
                 self.register_pokemon(pokemon)

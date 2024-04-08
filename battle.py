@@ -19,12 +19,12 @@ class Battle:
         winning_team = None
         if self.battle_mode == BattleMode.SET:
             winning_team = self.set_battle()
+
         elif self.battle_mode == BattleMode.ROTATE:
             winning_team = self.rotate_battle()
         elif self.battle_mode == BattleMode.OPTIMISE:
             return self.optimise_battle()
         print("congrats winner")
-        print(winning_team)
         print("congrats winner")
         if winning_team == self.trainer_1.get_team():
             return self.trainer_1
@@ -33,24 +33,26 @@ class Battle:
         return None
 
     def _create_teams(self) -> Tuple[PokeTeam, PokeTeam]:
-        print("test2teststart")
-        if all(pokemon is None for pokemon in self.trainer_1.team):
+        print("test2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststart")
+        if self.trainer_1.team.team_count == 0:
             self.trainer_1.pick_team("random")
             print("team 1 was empty")
-        if all(pokemon is None for pokemon in self.trainer_2.team):
+            print(self.trainer_1.team)
+        if self.trainer_2.team.team_count == 0:
             self.trainer_2.pick_team("random")
             print("team 2 was empty")
+            print(self.trainer_2.team)
 
         print("progress at least")
         if self.battle_mode == BattleMode.SET:
-            self.team1 = self.trainer_1.get_team().assemble_team(BattleMode.SET)
-            self.team2 = self.trainer_2.get_team().assemble_team(BattleMode.SET)
+            self.trainer_1.get_team().assemble_team(BattleMode.SET)
+            self.trainer_2.get_team().assemble_team(BattleMode.SET)
         elif self.battle_mode == BattleMode.ROTATE:
-            self.team1 = self.trainer_1.get_team().assemble_team(BattleMode.ROTATE)
-            self.team2 = self.trainer_2.get_team().assemble_team(BattleMode.ROTATE)
+            self.trainer_1.get_team().assemble_team(BattleMode.ROTATE)
+            self.trainer_2.get_team().assemble_team(BattleMode.ROTATE)
         elif self.battle_mode == BattleMode.OPTIMISE:
-            self.team1 = self.trainer_1.get_team().assemble_team(BattleMode.OPTIMISE)
-            self.team2 = self.trainer_2.get_team().assemble_team(BattleMode.OPTIMISE)
+            self.trainer_1.get_team().assign_team(BattleMode.OPTIMISE)
+            self.trainer_2.get_team().assign_team(BattleMode.OPTIMISE)
         # if self.battle_mode == BattleMode.ROTATE:
         #     team_1 = self.trainer_1.get_team().to_queue()
         #     team_2 = self.trainer_2.get_team().to_queue()
@@ -59,68 +61,64 @@ class Battle:
         #     team_2 = self.trainer_2.get_team().to_priority_queue(self.criterion)
         print("test2")
         print("test2testend")
-        return self.team1, self.team2
+        return self.trainer_1.team, self.trainer_2
 
-    def set_battle(self) -> PokeTeam | None:
-        team_1, team_2 = self._create_teams()
-        
+    def set_battle(self) -> PokeTeam | None:        
         print("here")
 
-        while not team_1.is_empty() and not team_2.is_empty():
-            pokemon_1 = team_1.pop()
+        while self.trainer_1.team.team_count > 0 and self.trainer_2.team.team_count > 0:
+            pokemon_1 = self.trainer_1.team.team.pop()
             self.trainer_1.team.team_count -= 1
-            pokemon_2 = team_2.pop()
+            pokemon_2 = self.trainer_2.team.team.pop()
             self.trainer_2.team.team_count -= 1
 
             self.one_on_one(pokemon_1, pokemon_2)
 
             if pokemon_1.is_alive():
-                team_1.push(pokemon_1)
+                self.trainer_1.team.team.push(pokemon_1)
                 self.trainer_1.team.team_count += 1
             if pokemon_2.is_alive():
-                team_2.push(pokemon_2)
+                self.trainer_2.team.team.push(pokemon_2)
                 self.trainer_2.team.team_count += 1
 
-        print("\n team1")
-        print(team_1)
-        print("\n team2")
-        print(team_2)
-        print(team_1.is_empty())
-        print(team_2.is_empty())
-        self.trainer_1.team = team_1
-        self.trainer_2.team = team_2
-        self.trainer_1.team = ArrayR(self.trainer_1.team.team_count)
-        for i in range(self.trainer_1.team.team_count):
-            self.trainer_1.team[i] = team_1.pop()
-        self.trainer_2.team = ArrayR(self.trainer_2.team.team_count)
-        for i in range(self.trainer_2.team.team_count):
-            self.trainer_2.team[i] = team_2.pop()
+        # print("\n team1")
+        # print(self.trainer_1.team)
+        # print("\n team2")
+        # print(self.trainer_2.team)
+        # print(self.trainer_1.team.team_count)
+        # print(self.trainer_2.team.team_count)
+        # self.trainer_1.team = self.trainer_1.team
+        # self.trainer_2.team = self.trainer_2.team
+        # self.trainer_1.team = ArrayR(self.trainer_1.team.team_count)
+        # for i in range(self.trainer_1.team.team_count):
+        #     self.trainer_1.team[i] = self.trainer_1.team.pop()
+        # self.trainer_2.team = ArrayR(self.trainer_2.team.team_count)
+        # for i in range(self.trainer_2.team.team_count):
+        #     self.trainer_2.team[i] = self.trainer_2.team.pop()
 
-        return self.trainer_2.team if team_1.is_empty() else self.trainer_1.team if team_2.is_empty() else None
+        return self.trainer_2.team if self.trainer_1.team.team_count == 0 else self.trainer_1.team if self.trainer_2.team.team_count == 0 else None
 
     def rotate_battle(self) -> PokeTeam | None:
-        team_1, team_2 = self._create_teams()
-
-        while not team_1.is_empty() and not team_2.is_empty():
-            pokemon_1 = team_1.serve()
-            pokemon_2 = team_2.serve()
+        while self.trainer_1.get_team().team_count > 0 and self.trainer_2.get_team().team_count > 0:
+            pokemon_1 = self.trainer_1.team.team.serve()
+            self.trainer_1.get_team().team_count -= 1
+            pokemon_2 = self.trainer_2.team.team.serve()
+            self.trainer_2.get_team().team_count -= 1
+            print("attacking")
 
             self.one_on_one(pokemon_1, pokemon_2)
 
             if pokemon_1.is_alive():
-                team_1.append(pokemon_1)
+                self.trainer_1.team.team.append(pokemon_1)
+                self.trainer_1.get_team().team_count += 1
             if pokemon_2.is_alive():
-                team_2.append(pokemon_2)
+                self.trainer_2.team.team.append(pokemon_2)
+                self.trainer_2.get_team().team_count += 1
 
-        return team_2 if team_1.is_empty() else team_1 if team_2.is_empty() else None
-
+        return self.trainer_2.team if self.trainer_1.team.team_count == 0 else self.trainer_1.team if self.trainer_2.team.team_count == 0 else None
 
     def optimise_battle(self) -> PokeTeam | None:
-        self.trainer_1.team = Battle.assign_team(self.trainer_1.team, self.criterion)
-        self.trainer_2.team = Battle.assign_team(self.trainer_2.team, self.criterion)
-        team_1, team_2 = self._create_teams()
-
-        while len(team_1) > 0 and len(team_2) > 0:
+        while self.trainer_1.get_team().team_count > 0 and self.trainer_2.get_team().team_count > 0:
             pokemon_1 = team_1.delete_at_index(0)
             pokemon_2 = team_2.delete_at_index(0)
             
@@ -131,19 +129,7 @@ class Battle:
             if pokemon_2.is_alive():
                 team_2.add(pokemon_2)
         
-        return self.trainer_2 if team_1.is_empty() else self.trainer_1 if team_2.is_empty() else None
-
-
-    def assign_team(self, team):
-        for i in range(len(team)):
-            min = i
-            for j in range(i+1, len(team)):
-                if getattr(team[min], self.criterion) < getattr(team[j], self.criterion):
-                    min = j
-            team[i], team[min] = team[min], team[i]
-            print("sortedlist")
-            print(team[i].get_name())
-        return team
+        return self.trainer_2.team if self.trainer_1.team.team_count == 0 else self.trainer_1.team if self.trainer_2.team.team_count == 0 else None
     
     def one_on_one(self, pokemon_1, pokemon_2):
         self.trainer_1.register_pokemon(pokemon_2)

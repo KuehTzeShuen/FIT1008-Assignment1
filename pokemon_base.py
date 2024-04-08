@@ -76,6 +76,7 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         self.speed = None
         # To keep track of which pokemon is which after reordering
         self.id = None
+        self.assign_special = False
 
 
     def get_name(self) -> str:

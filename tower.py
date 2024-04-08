@@ -24,26 +24,28 @@ class BattleTower:
     def generate_enemy_trainers(self, n: int) -> None:
         self.enemy_trainers = CircularQueue(n)
         for _ in range(n):
-            trainer = Trainer('Rocket Grunt ' + str(_))
-            trainer.pick_team("random")
-            trainer.lives = random.randint(self.MIN_LIVES, self.MAX_LIVES)
-            # print(trainer, team, trainer.lives)
-            self.enemy_trainers.append((trainer))
+            grunt = Trainer('Rocket Grunt ' + str(_))
+            grunt.pick_team("random")
+            grunt.lives = random.randint(self.MIN_LIVES, self.MAX_LIVES)
+            print(grunt, grunt.get_team, grunt.lives)
+            grunt.get_team().assemble_team(BattleMode.ROTATE)
+            self.enemy_trainers.append((grunt))
 
     def battles_remaining(self) -> bool:
         if self.lives <= 0:
             return False
-        for _, _, lives in self.enemy_trainers:
-            if lives > 0:
+        for grunt in self.enemy_trainers:
+            if grunt.lives > 0:
                 return True
         return False
 
     def next_battle(self) -> Tuple[Trainer, PokeTeam, int, int]:
         if len(self.enemy_trainers) == 0:
             return "Team Wipe."
-
+        
         enemy_trainer = self.enemy_trainers.serve()
-        battle = Battle(self.my_trainer, enemy_trainer, BattleMode.SET)
+
+        battle = Battle(self.my_trainer, enemy_trainer, BattleMode.ROTATE)
 
         winner = battle.commence_battle()
         if winner == self.my_trainer:
