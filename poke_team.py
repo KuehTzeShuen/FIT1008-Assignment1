@@ -54,6 +54,8 @@ class PokeTeam:
         #     self.team[i].id = i
     
     def regenerate_team(self, battle_mode: BattleMode, criterion: str = None) -> None:
+        team_length = len(self.team.array)
+        len(self.team) = team_length
 
         if battle_mode == BattleMode.SET:
             temp_team = ArrayR(self.TEAM_LIMIT)
@@ -74,6 +76,7 @@ class PokeTeam:
                 self.team.push(pokemon)
 
         elif battle_mode == BattleMode.ROTATE:
+            print("healing")
             for i in range(len(self.team)):
                 pokemon = self.team.serve()
                 pokemon_type = type(pokemon)
@@ -81,6 +84,7 @@ class PokeTeam:
                 health_multiplier = 1.5 ** current_stage_index
                 pokemon.health = pokemon_type().health * health_multiplier
                 self.team.append(pokemon)
+                print("hihihi")
 
                     
         # for i in range(len(self.team)):
@@ -158,15 +162,24 @@ class PokeTeam:
             raise ValueError(f"Invalid battle mode")
 
     def __getitem__(self, index: int):
-        return self.team[index]
+        if isinstance(self.team, CircularQueue):
+            real_index = (self.team.front + index) % len(self.team)
+            return self.team.data[real_index]
+        else:
+            return self.team[index]
 
     def __len__(self):
         return len(self.team)
 
     def __str__(self):
         result = ""
-        for i in range(self.team_count):
-            result += str(self.team[i]) + "\n"
+        if isinstance(self.team, CircularQueue):
+            for i in range(len(self.team)):
+                real_index = (self.team.front + i) % len(self.team)
+                result += str(self.team.data[real_index]) + "\n"
+        else:
+            for i in range(len(self.team)):
+                result += str(self.team[i]) + "\n"
         return result
 
 class Trainer:
