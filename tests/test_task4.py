@@ -38,6 +38,11 @@ class TestTower(unittest.TestCase):
         while self.bt.battles_remaining():
             self.bt.next_battle()
         self.player_trainer.get_team().regenerate_team(BattleMode.SET)
+        print("set test")
+        print(self.player_trainer.get_team()[0])
+        print(self.player_trainer.get_team()[1])
+        print(self.player_trainer.get_team()[2])
+        print("set test")
         self.assertEqual(str(self.player_trainer.get_team()[0]), "Graveler (Level 2) with 40 health and 0 experience")
 
     @number("4.3")

@@ -53,6 +53,8 @@ class Battle:
         elif self.battle_mode == BattleMode.OPTIMISE:
             self.trainer_1.get_team().assign_team(BattleMode.OPTIMISE)
             self.trainer_2.get_team().assign_team(BattleMode.OPTIMISE)
+#        self.trainer_1.fainted_pokemon = ArrayR(self.trainer_1.get_team().team_count)
+#        self.trainer_2.fainted_pokemon = ArrayR(self.trainer_2.get_team().team_count)
         # if self.battle_mode == BattleMode.ROTATE:
         #     team_1 = self.trainer_1.get_team().to_queue()
         #     team_2 = self.trainer_2.get_team().to_queue()
@@ -99,6 +101,9 @@ class Battle:
         return self.trainer_2.team if self.trainer_1.team.team_count == 0 else self.trainer_1.team if self.trainer_2.team.team_count == 0 else None
 
     def rotate_battle(self) -> PokeTeam | None:
+        temp_team1 = ArrayR(self.trainer_1.get_team().team_count)
+        temp_team2 = ArrayR(self.trainer_2.get_team().team_count)
+
         while self.trainer_1.get_team().team_count > 0 and self.trainer_2.get_team().team_count > 0:
             pokemon_1 = self.trainer_1.team.team.serve()
             self.trainer_1.get_team().team_count -= 1
@@ -111,10 +116,22 @@ class Battle:
             if pokemon_1.is_alive():
                 self.trainer_1.team.team.append(pokemon_1)
                 self.trainer_1.get_team().team_count += 1
+            else:
+#                self.trainer_1.fainted_pokemon[-1] = pokemon_1
+                temp_team1[-1] = pokemon_1
+
             if pokemon_2.is_alive():
                 self.trainer_2.team.team.append(pokemon_2)
                 self.trainer_2.get_team().team_count += 1
+            else:
+#                self.trainer_2.fainted_pokemon[-1] = pokemon_2
+                temp_team2[-1] = pokemon_2
 
+        print("team test")
+        self.trainer_1.team.team.length = 6
+        print(self.trainer_1.team.team.array[0])
+        print(self.trainer_1.team.team.array[1])
+        print(self.trainer_1.team.team.array[2])
         return self.trainer_2.team if self.trainer_1.team.team_count == 0 else self.trainer_1.team if self.trainer_2.team.team_count == 0 else None
 
     def optimise_battle(self) -> PokeTeam | None:

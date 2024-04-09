@@ -76,7 +76,6 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         self.speed = None
         # To keep track of which pokemon is which after reordering
         self.id = None
-        self.assign_special = False
 
 
     def get_name(self) -> str:
@@ -237,8 +236,7 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         Return a string representation of the Pokemon instance in the format:
         <name> (Level <level>) with <health> health and <experience> experience
         """
-        return f"{self.name} (Level {self.level}) with {self.get_health()} health \
-                and {self.get_experience()} experience"
+        return f"{self.name} (Level {self.level}) with {self.get_health()} health and {self.get_experience()} experience"
 
 
 # TODO
