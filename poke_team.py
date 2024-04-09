@@ -17,6 +17,7 @@ class PokeTeam:
     def __init__(self):
         self.team = ArrayR(self.TEAM_LIMIT)
         self.team_count = 0
+        self.fainted_pokemon = ArrayR(self.TEAM_LIMIT)
 
     def choose_manually(self):
         self.team = ArrayR(self.TEAM_LIMIT)
@@ -43,6 +44,7 @@ class PokeTeam:
             self.team[i] = all_pokemon[rand_int]()
             self.team_count += 1
             self.team[i].id = i
+        
         # self.team = ArrayR(PokeTeam.TEAM_LIMIT)
         # for i in range(PokeTeam.TEAM_LIMIT):
         #     self.team[i] = random.choice(self.POKE_LIST)()
@@ -61,6 +63,9 @@ class PokeTeam:
         self.team.length= team_length
         temp_team = ArrayR(team_length)
         print("heal!!!")
+        print(self.fainted_pokemon)
+        print(self.team)
+        print("heal!!")
 
         # for pokemon in self.fainted_pokemon:
         #     pokemon_type = type(pokemon)
@@ -69,22 +74,29 @@ class PokeTeam:
         #     pokemon.health = int(pokemon_type().health * health_multiplier)
         #     temp_team[pokemon.id] = pokemon
 
+        for pokemon in self.fainted_pokemon:
+            if pokemon:
+                pokemon_type = type(pokemon)
+                current_stage_index = pokemon.get_evolution().index(pokemon.name)
+                print(f"current stage index: {current_stage_index}")
+                health_multiplier = 1.5 ** current_stage_index
+                pokemon.health = int(pokemon_type().health * health_multiplier)
+                print(pokemon.name, pokemon_type().health, health_multiplier, pokemon.health)
+                print(f"idididid{pokemon.id}")
+                temp_team[pokemon.id] = pokemon
         for pokemon in self.team.array:
-            print(self.team)
-            print(self.team.length)
-            print("healing here")
-
-            print(len(self.team.array))
-
-            print(pokemon)
-            pokemon_type = type(pokemon)
-            current_stage_index = pokemon.get_evolution().index(pokemon.name) - 1
-            health_multiplier = 1.5 ** current_stage_index
-            pokemon.health = int(pokemon_type().health * health_multiplier)
-            print(pokemon_type().health, health_multiplier, pokemon.health)
-#            print(f"idididid{pokemon.id}")
-#            temp_team[pokemon.id] = pokemon
-        self.team = temp_team
+            if pokemon and pokemon.health > 0:
+                pokemon_type = type(pokemon)
+                current_stage_index = pokemon.get_evolution().index(pokemon.name)
+                health_multiplier = 1.5 ** current_stage_index
+                pokemon.health = int(pokemon_type().health * health_multiplier)
+                temp_team[pokemon.id] = pokemon
+        self.fainted_pokemon = ArrayR(self.team.length)
+        self.team = ArrayR(team_length)
+        for i in range(len(temp_team)):
+            self.team[i] = temp_team[i]
+        print(self.team)
+        print("done healing")
         if battle_mode == BattleMode.OPTIMISE:
             self.assign_team(criterion)
         else:

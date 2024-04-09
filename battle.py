@@ -83,27 +83,10 @@ class Battle:
                 self.trainer_2.team.team.push(pokemon_2)
                 self.trainer_2.team.team_count += 1
 
-        # print("\n team1")
-        # print(self.trainer_1.team)
-        # print("\n team2")
-        # print(self.trainer_2.team)
-        # print(self.trainer_1.team.team_count)
-        # print(self.trainer_2.team.team_count)
-        # self.trainer_1.team = self.trainer_1.team
-        # self.trainer_2.team = self.trainer_2.team
-        # self.trainer_1.team = ArrayR(self.trainer_1.team.team_count)
-        # for i in range(self.trainer_1.team.team_count):
-        #     self.trainer_1.team[i] = self.trainer_1.team.pop()
-        # self.trainer_2.team = ArrayR(self.trainer_2.team.team_count)
-        # for i in range(self.trainer_2.team.team_count):
-        #     self.trainer_2.team[i] = self.trainer_2.team.pop()
-
         return self.trainer_2.team if self.trainer_1.team.team_count == 0 else self.trainer_1.team if self.trainer_2.team.team_count == 0 else None
 
     def rotate_battle(self) -> PokeTeam | None:
-        temp_team1 = ArrayR(self.trainer_1.get_team().team_count)
-        temp_team2 = ArrayR(self.trainer_2.get_team().team_count)
-
+        
         while self.trainer_1.get_team().team_count > 0 and self.trainer_2.get_team().team_count > 0:
             pokemon_1 = self.trainer_1.team.team.serve()
             self.trainer_1.get_team().team_count -= 1
@@ -113,19 +96,17 @@ class Battle:
 
             self.one_on_one(pokemon_1, pokemon_2)
 
+            self.trainer_1.team.team.append(pokemon_1)
             if pokemon_1.is_alive():
-                self.trainer_1.team.team.append(pokemon_1)
                 self.trainer_1.get_team().team_count += 1
             else:
-#                self.trainer_1.fainted_pokemon[-1] = pokemon_1
-                temp_team1[-1] = pokemon_1
+                self.trainer_1.team.fainted_pokemon[pokemon_1.id] = pokemon_1
 
+            self.trainer_2.team.team.append(pokemon_2)
             if pokemon_2.is_alive():
-                self.trainer_2.team.team.append(pokemon_2)
                 self.trainer_2.get_team().team_count += 1
             else:
-#                self.trainer_2.fainted_pokemon[-1] = pokemon_2
-                temp_team2[-1] = pokemon_2
+                self.trainer_2.team.fainted_pokemon[pokemon_2.id] = pokemon_2
 
         print("team test")
         self.trainer_1.team.team.length = 6
