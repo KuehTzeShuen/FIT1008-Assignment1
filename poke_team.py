@@ -55,7 +55,7 @@ class PokeTeam:
     
     def regenerate_team(self, battle_mode: BattleMode, criterion: str = None) -> None:
         team_length = len(self.team.array)
-        len(self.team) = team_length
+        self.team.length = team_length
 
         if battle_mode == BattleMode.SET:
             temp_team = ArrayR(self.TEAM_LIMIT)
@@ -164,11 +164,12 @@ class PokeTeam:
     def __getitem__(self, index: int):
         if isinstance(self.team, CircularQueue):
             real_index = (self.team.front + index) % len(self.team)
-            return self.team.data[real_index]
+            return self.team.array[real_index]
         else:
             return self.team[index]
 
     def __len__(self):
+        
         return len(self.team)
 
     def __str__(self):
