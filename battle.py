@@ -92,11 +92,11 @@ class Battle:
         return self.trainer_2.team if self.trainer_1.team.team_count == 0 else self.trainer_1.team if self.trainer_2.team.team_count == 0 else None
 
     def rotate_battle(self) -> PokeTeam | None:
-        while self.trainer_1.get_team().team_count > 0 and self.trainer_2.get_team().team_count > 0:
+        while self.trainer_1.team.team_count > 0 and self.trainer_2.team.team_count > 0:
             pokemon_1 = self.trainer_1.team.team.serve()
-            self.trainer_1.get_team().team_count -= 1
+            self.trainer_1.team.team_count -= 1
             pokemon_2 = self.trainer_2.team.team.serve()
-            self.trainer_2.get_team().team_count -= 1
+            self.trainer_2.team.team_count -= 1
             print("attacking")
 
             self.one_on_one(pokemon_1, pokemon_2)
@@ -115,13 +115,10 @@ class Battle:
 
         print("team test")
         self.trainer_1.team.team.length = 6
-        print(self.trainer_1.team.team.array[0])
-        print(self.trainer_1.team.team.array[1])
-        print(self.trainer_1.team.team.array[2])
         return self.trainer_2.team if self.trainer_1.team.team_count == 0 else self.trainer_1.team if self.trainer_2.team.team_count == 0 else None
 
     def optimise_battle(self) -> PokeTeam | None:
-        while self.trainer_1.get_team().team_count > 0 and self.trainer_2.get_team().team_count > 0:
+        while self.trainer_1.team.team_count > 0 and self.trainer_2.team.team_count > 0:
             pokemon_1 = self.trainer_1.team.team.__getitem__(0)
             pokemon_2 = self.trainer_2.team.team.__getitem__(0)
             

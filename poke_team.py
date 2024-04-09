@@ -59,7 +59,7 @@ class PokeTeam:
         #     self.team[i].id = i
     
     def regenerate_team(self, battle_mode: BattleMode, criterion: str = None) -> None:
-        team_length = len(self.team.array)
+        team_length = len(self.copy)
         self.team.length= team_length
         temp_team = ArrayR(team_length)
         print("heal!!!")
@@ -84,7 +84,7 @@ class PokeTeam:
                 print(pokemon.name, pokemon_type().health, health_multiplier, pokemon.health)
                 print(f"idididid{pokemon.id}")
                 temp_team[pokemon.id] = pokemon
-        for pokemon in self.team.array:
+        for pokemon in self.copy:
             if pokemon:
                 print(f"pokemon: {pokemon}")
                 pokemon_type = type(pokemon)
@@ -99,6 +99,7 @@ class PokeTeam:
             self.team[i] = temp_team[i]
         print(self.team)
         print("done healing")
+        self.team_count = len(self.team)
         if battle_mode == BattleMode.OPTIMISE:
             self.assign_team(criterion)
         else:
@@ -113,41 +114,48 @@ class PokeTeam:
 
         if battle_mode == BattleMode.SET:
             team = ArrayStack(self.team.__len__())
+            self.copy = ArrayR(self.team.__len__())
             for i in range(len(self.team)):
                 pokemon = self.team[i]
+                pokemon.id = i
                 print(f"pushing {pokemon}")
                 team.push(pokemon)
+                self.copy[i] = pokemon
 
             print("assemble set success")
-            print("heres number 1:")
-            print("damn")
             self.team = team
             self.team.team_count = self.team.__len__()
 
         elif battle_mode == BattleMode.ROTATE:
             team = CircularQueue(self.team.__len__())
+            self.copy = ArrayR(self.team.__len__())
             for i in range(len(self.team)):
                 pokemon = self.team[i]
+                pokemon.id = i
                 print(f"pushing {pokemon}")
                 team.append(pokemon)
+                self.copy[i] = pokemon
             self.team = CircularQueue(self.team.__len__())
             self.team = team
             self.team.team_count = self.team.__len__()
-            
+
         else:
             raise ValueError(f"Invalid battle mode")
         
     def assign_team(self, criterion: str) -> None:
         print(f"{self.team_count} in team")
         team = ArraySortedList(self.team_count)
+        self.copy = ArrayR(self.team_count)
         print("assigning team")
         print(self.team)
         for i in range(self.team_count):
             pokemon = self.team[i]
+            pokemon.id = i
             if pokemon:
                 print("assigning next")
                 pokemon.key = getattr(pokemon, criterion)
                 team.add(pokemon)
+                self.copy[i] = pokemon
         print("assign team success")
         self.team = team
         
@@ -174,12 +182,12 @@ class PokeTeam:
         print(self.team)
         print(f"index: {index}")
         if isinstance(self.team, ArrayStack):
-            print(f"set mon: {self.team.array[index]}")
-            return self.team.array[index]
+            print(f"set mon: {self.copy[index]}")
+            return self.copy[index]
         elif isinstance(self.team, CircularQueue):
-            real_index = (self.team.front + index) % len(self.team.array)
+            real_index = (self.team.front + index) % len(self.copy)
             print(f"real index: {real_index}")
-            return self.team.array[real_index]
+            return self.copy[real_index]
         else:
             return self.team[index]
 
@@ -191,7 +199,7 @@ class PokeTeam:
         if isinstance(self.team, CircularQueue):
             for i in range(len(self.team)):
                 real_index = (self.team.front + i) % len(self.team)
-                result += str(self.team.array[real_index]) + "\n"
+                result += str(self.copy[real_index]) + "\n"
         else:
             for i in range(len(self.team)):
                 result += str(self.team[i]) + "\n"
