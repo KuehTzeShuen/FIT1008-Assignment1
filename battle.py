@@ -19,12 +19,23 @@ class Battle:
         winning_team = None
         if self.battle_mode == BattleMode.SET:
             winning_team = self.set_battle()
+            temp_array = ArrayR(winning_team.team_count)
+            for i in range(winning_team.team_count):
+                temp_array[i] = winning_team.team.pop()
+            for i in range(winning_team.team_count):
+                winning_team.team = temp_array
+            print("drunroll")
+            print(self.trainer_1.get_team())
+            print(self.trainer_2.get_team())
+            print("drumroll")
+            print(winning_team.team)
+            print("congrats winner")
         elif self.battle_mode == BattleMode.ROTATE:
             winning_team = self.rotate_battle()
         elif self.battle_mode == BattleMode.OPTIMISE:
             winning_team = self.optimise_battle()
         print("congrats winner")
-        
+        print(winning_team.copy)
         print("congrats winner")
         if winning_team == self.trainer_1.get_team():
             print(self.trainer_1)
@@ -87,6 +98,8 @@ class Battle:
                 self.trainer_2.team.team_count += 1
             else:
                 self.trainer_2.team.fainted_pokemon[pokemon_2.id] = pokemon_2
+                
+        
 
         return self.trainer_2.team if self.trainer_1.team.team_count == 0 else self.trainer_1.team if self.trainer_2.team.team_count == 0 else None
 

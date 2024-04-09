@@ -23,6 +23,8 @@ class TestBattle(unittest.TestCase):
 
     def __test_set_battle(self) -> Tuple[Trainer, Trainer]:
         battle = self.__create_teams(BattleMode.SET)
+        print(self.trainer1.name)
+        print(self.trainer1.get_team())
         self.trainer1.get_team().special(BattleMode.SET)
         return battle.commence_battle(), self.trainer2
 
@@ -117,9 +119,7 @@ class TestBattle(unittest.TestCase):
         _, _ = self.__test_optimise_battle()
         # Check trainer's Pokedex completion (2 decimal places)
         self.assertEqual(self.trainer1.get_pokedex_completion(), 0.67, f"{self.trainer1.get_name()} - Pokedex completion not being update correctly in battle")
-        print("trainer1")
         self.assertEqual(self.trainer2.get_pokedex_completion(), 0.53, f"{self.trainer2.get_name()} - Pokedex completion not being update correctly in battle")
-        print("trainer2")
 
     @number("3.10")
     @visibility(visibility.VISIBILITY_SHOW)

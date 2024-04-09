@@ -16,6 +16,7 @@ class PokeTeam:
 
     def __init__(self):
         self.team = ArrayR(self.TEAM_LIMIT)
+        self.copy = ArrayR(self.TEAM_LIMIT)
         self.team_count = 0
         self.fainted_pokemon = ArrayR(self.TEAM_LIMIT)
 
@@ -160,17 +161,32 @@ class PokeTeam:
         self.team = team
         
     def special(self, battle_mode: BattleMode) -> None:
+        print(self.team)
         if battle_mode == BattleMode.SET:
+            print("Special set")
             mid_index = len(self.team) // 2
-            temp_array = ArrayR(mid_index)
-            for i in range(mid_index):
+            print(len(self.team))
+            length = len(self.team)
+            temp_array = ArrayR(len(self.team))
+            
+            for i in range(len(self.team)):
                 temp_array[i] = self.team.pop()
+                print(f"temp array: {temp_array[i]}")
                 self.team_count -= 1
-            for i in range(mid_index - 1, -1, -1):
+                
+            for i in range(mid_index, length):
+                temp_array[i].id = self.team_count
+                self.team.push(temp_array[i])
+                print(f"pushed: {temp_array[i]}")
+                self.copy[self.team_count] = temp_array[i]
+                self.team_count += 1
+                
+            for i in range(mid_index - 1, -1, -1):  # Push the rest in normal order
                 temp_array[i].id = self.team_count
                 self.team.push(temp_array[i])
                 self.copy[self.team_count] = temp_array[i]
                 self.team_count += 1
+            print(self.team)
 
         elif battle_mode == BattleMode.ROTATE:
             mid_index = len(self.team) // 2
@@ -200,13 +216,9 @@ class PokeTeam:
 
     def __str__(self):
         result = ""
-        if isinstance(self.team, CircularQueue):
-            for i in range(len(self.team)):
-                real_index = (self.team.front + i) % len(self.team)
-                result += str(self.copy[real_index]) + "\n"
-        else:
-            for i in range(len(self.team)):
-                result += str(self.team[i]) + "\n"
+        for i in self.copy:
+            if i:
+                result += f"{i}\n"
         return result
 
 class Trainer:
