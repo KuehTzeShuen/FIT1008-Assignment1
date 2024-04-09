@@ -113,7 +113,6 @@ class ArraySortedList(SortedList[T]):
         """ Find the position where the new item should be placed. """
         low = 0
         high = len(self) - 1
-        print(f"item: {item}, {item.key}")
 
         while low <= high:
             mid = (low + high) // 2

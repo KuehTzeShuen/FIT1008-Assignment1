@@ -84,7 +84,7 @@ class PokeTeam:
                 print(pokemon.name, pokemon_type().health, health_multiplier, pokemon.health)
                 print(f"idididid{pokemon.id}")
                 temp_team[pokemon.id] = pokemon
-        for pokemon in self.copy:
+        for pokemon in self.team:
             if pokemon:
                 print(f"pokemon: {pokemon}")
                 pokemon_type = type(pokemon)
@@ -165,8 +165,12 @@ class PokeTeam:
             temp_array = ArrayR(mid_index)
             for i in range(mid_index):
                 temp_array[i] = self.team.pop()
+                self.team_count -= 1
             for i in range(mid_index - 1, -1, -1):
+                temp_array[i].id = self.team_count
                 self.team.push(temp_array[i])
+                self.copy[self.team_count] = temp_array[i]
+                self.team_count += 1
 
         elif battle_mode == BattleMode.ROTATE:
             mid_index = len(self.team) // 2
@@ -210,17 +214,15 @@ class Trainer:
     def __init__(self, name) -> None:
         self.name = name
         self.team = PokeTeam()
-        self.pokedex = BSet()
+        self.pokedex = BSet(len(PokeType))
 
     def pick_team(self, method: str) -> None:
         if method.upper() == "RANDOM":
             self.team.choose_randomly()
-            for pokemon in self.team:
-                self.register_pokemon(pokemon)
         elif method.upper() == "MANUAL":
             self.team.choose_manually()
-            for pokemon in self.team:
-                self.register_pokemon(pokemon)
+        for pokemon in self.team:
+            self.register_pokemon(pokemon)
         else:
             print("Invalid method")
         

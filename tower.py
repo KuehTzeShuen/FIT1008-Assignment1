@@ -44,6 +44,8 @@ class BattleTower:
             return "Team Wipe."
         
         enemy_trainer = self.enemy_trainers.serve()
+        self.my_trainer.get_team().regenerate_team(BattleMode.ROTATE)
+        enemy_trainer.get_team().regenerate_team(BattleMode.ROTATE)
         print("tower battle")
         print("my team")
         print(self.my_trainer.team)
@@ -54,10 +56,11 @@ class BattleTower:
         winner = battle.commence_battle()
         if winner == self.my_trainer:
             enemy_trainer.lives -= 1
+            print("Enemy life - 1")
+            self.enemy_lives_taken += 1
             if enemy_trainer.lives > 0:
                 self.enemy_trainers.append((enemy_trainer))
-            else:
-                self.enemy_lives_taken += 1
+                print("Enemy defeated")
         else:
             self.lives -= 1
             self.enemy_trainers.append((enemy_trainer))

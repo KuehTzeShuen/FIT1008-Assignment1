@@ -35,7 +35,6 @@ class Battle:
         return None
 
     def _create_teams(self) -> Tuple[PokeTeam, PokeTeam]:
-        print("test2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststarttest2teststart")
         if self.trainer_1.team.team_count == 0:
             self.trainer_1.pick_team("random")
             print("team 1 was empty")
@@ -147,26 +146,16 @@ class Battle:
 
         print(f"{faster_pokemon.get_name()} has {faster_pokemon.health} health")
         print(f"{slower_pokemon.get_name()} has {slower_pokemon.health} health")
-        
-        faster_pokemon.calculate_damage(slower_pokemon, faster_trainer.get_pokedex_completion()/slower_trainer.get_pokedex_completion())
-                # print(f"{faster_pokemon.get_name()} attacked {slower_pokemon.get_name()} for {faster_pokemon.attack(slower_pokemon)} damage.")
-                # if TypeEffectiveness.get_effectiveness(faster_pokemon.poketype, slower_pokemon.poketype) > 1:
-                #     print("It was super effective!!!!!!!!!!!!!!!!!!")
-                # elif TypeEffectiveness.get_effectiveness(faster_pokemon.poketype, slower_pokemon.poketype) < 1:
-                #     print("It was not very effective...........................")
-                # print(f"{slower_pokemon.get_name()} has {slower_pokemon.health} health left")
-                # if not slower_pokemon.is_alive():
-                #     print(f"{slower_pokemon.get_name()} fainted")             
+        print(self.trainer_1.get_pokedex_completion()*15)
+        print(self.trainer_2.get_pokedex_completion()*15)
+        print("%")
+        faster_pokemon.calculate_damage(slower_pokemon, faster_trainer.get_pokedex_completion()/slower_trainer.get_pokedex_completion()) 
+        print(faster_trainer.get_pokedex_completion()/slower_trainer.get_pokedex_completion())
+        print(faster_trainer.get_name())      
         if slower_pokemon.is_alive() or faster_pokemon.get_speed() == slower_pokemon.get_speed():
             slower_pokemon.calculate_damage(faster_pokemon, slower_trainer.get_pokedex_completion()/faster_trainer.get_pokedex_completion())
-            # print(f"{slower_pokemon.get_name()} attacked {faster_pokemon.get_name()} for {slower_pokemon.attack(faster_pokemon)} damage")
-            # if TypeEffectiveness.get_effectiveness(faster_pokemon.poketype, slower_pokemon.poketype) > 1:
-            #     print("It was super effective!!!!!!!!!!!!!!!!!!")
-            # elif TypeEffectiveness.get_effectiveness(faster_pokemon.poketype, slower_pokemon.poketype) < 1:
-            #     print("It was not very effective.............................")
-            # print(f"{faster_pokemon.get_name()} has {faster_pokemon.health} health left")
-            # if not faster_pokemon.is_alive():
-            #     print(f"{faster_pokemon.get_name()} fainted")
+            print(slower_trainer.get_pokedex_completion()/faster_trainer.get_pokedex_completion())
+            print(slower_trainer.get_name())
         print(f"{faster_pokemon.get_name()} has {faster_pokemon.health} health")
         print(f"{slower_pokemon.get_name()} has {slower_pokemon.health} health")
         if faster_pokemon.is_alive() and slower_pokemon.is_alive():

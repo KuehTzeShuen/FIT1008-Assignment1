@@ -31,19 +31,30 @@ class TypeEffectiveness:
     """
     Represents the type effectiveness of one Pokemon type against another.
     """
-    tablesize = len(PokeType) ** 2
-    effectiveness_table = ArrayR(tablesize)
+    # The tablesize variable is calculated as the square of the number of Pokemon types. 
+    # It represents the total number of possible interactions between different Pokemon types.
+    # I used the len(PokeType) to determine how many types there are, to make it easier in case we ever feel like adding fairy, dark and steel types from gen 2 some day.
+    table_size = len(PokeType) ** 2
+    EFFECT_TABLE = ArrayR(table_size)
 
+    # The effectiveness table is then populated with the values from the type_effectiveness.csv file.
+    # Only one array is strictly necessary, as all the values are stored sequentially to the type of the attacker against the type of the defender.
+    # The values are stored in the array in the order of the PokeType enum, so the first 15 values are the effectiveness of fire against all types, the next 15 are the effectiveness of water against all types, etc.
+    # The time complexity of this method is O(n), where n is the number of lines in the .csv file / the number of types of pokemon.
+    # There is no best or worst case, as the number of types and their interactions are fixed.
     with open("type_effectiveness.csv", encoding='utf-8') as file:
         next(file)
-
+        
         i = 0
         for line in file:
             values = line.strip().split(",")
             for value in values:
-                effectiveness_table[i] = value
+                EFFECT_TABLE[i] = value
                 i += 1
-                
+    
+    # So we retrieve the effectiveness of one type against another by multiplying the attacker's type value (Grass = 2) to the number of types to get to the 15 values of the attacker's type (2*15 = 30), and adding the defender's type value (Water = 1, 30 + 1 = 31)
+    # The 31st element (0 indexed so technically 32nd element) in the .csv and the effect table are both 2.0, meaning grass pokemon are super effective against water pokemon.
+    # The time complexity of this method is O(1), as it only requires a single lookup in the array, and the getitem method of the array is O(1).
     @classmethod
     def get_effectiveness(cls, attack_type: PokeType, defend_type: PokeType) -> float:
         """
@@ -56,11 +67,10 @@ class TypeEffectiveness:
         Returns:
             float: The effectiveness of the attack, as a float value between 0 and 4.
         """
-
-        return float(TypeEffectiveness.effectiveness_table[(attack_type.value * len(PokeType)) + defend_type.value])
+        return float(TypeEffectiveness.EFFECT_TABLE[(attack_type.value * len(PokeType)) + defend_type.value])
 
         
-    # TODO
+    # The time complexity of this method is O(1), as the size of the Poketype enum is known in advance, so we just return that value.
     def __len__(self) -> int:
         """
         Returns the number of types of Pokemon
@@ -68,7 +78,7 @@ class TypeEffectiveness:
         return len(PokeType)
 
 
-class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-attributes
+class Pokemon(ABC):
     """
     Represents a base Pokemon class with properties and methods common to all Pokemon.
     """
@@ -159,11 +169,7 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         Returns:
             list: The evolution of the Pokemon.
         """
-        if len(self.evolution_line) == 1:
-            return self.evolution_line
-
-        current_index = self.evolution_line.index(self.name)
-        return self.evolution_line[current_index:]
+        return self.evolution_line
 
     def get_battle_power(self) -> int:
         """
@@ -174,6 +180,8 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         """
         return self.battle_power
 
+    # We calculate the base damage through the formula given for the current battle power multiplied by the type effectiveness.
+    # The time complexity of this method is O(1), as it only involves lookups of attributes of the Pokemon class and comparisons of basic data types int, assuming ceil = n(1) as well. We already established that getting the type effectiveness value is also O(1).
     def attack(self, other_pokemon) -> int:
         """
         Calculates and returns the damage that this Pokemon inflicts on the
@@ -193,8 +201,11 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
             damage = ceil(attack * 5/8 - defence / 4)
         else:
             damage = ceil(attack / 4)
+            
+        effectiveness = TypeEffectiveness.get_effectiveness(self.poketype, other_pokemon.poketype)
+        damage *= effectiveness
 
-        print(f"{self.name} attacking for {damage}")
+        print(f"{self.name} attacking for {damage} {effectiveness}")
         return damage
 
     def defend(self, damage: int) -> None:
@@ -208,13 +219,14 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         effective_damage = damage/2 if damage < self.get_defence() else damage
         self.health = self.health - effective_damage
 
+    # Then we continue the damage calculation by multiplying the damage by the ratio of pokedex completion of the attacker and defender to get the effective damage.
+    # The defending pokemon then uses the defend meethod to reduce its health by the reduced damage.
+    # The time complexity of this method is O(1), as this and the defend method only involve getting the attributes of the Pokemon class, and comparisons and arithmetic of basic data types of int, assuming ceil = n(1) as well.
     def calculate_damage(self, defender, pokedex_ratio_multiplier: float) -> None:
-        damage = self.attack(defender)
-        effectiveness = TypeEffectiveness.get_effectiveness(self.poketype, defender.poketype)
-        damage *= effectiveness
-        damage = ceil(damage * pokedex_ratio_multiplier)
-
-        defender.defend(damage)
+        battle_power = self.attack(defender)
+        effective_damage = ceil(battle_power * pokedex_ratio_multiplier)
+        print(pokedex_ratio_multiplier)
+        defender.defend(effective_damage)
 
     def level_up(self) -> None:
         """
@@ -226,6 +238,9 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
             (self.name) != len(self.evolution_line)-1:
             self._evolve()
 
+    # The function first updates the name of the Pokemon to the next stage in its evolution line. It does this by indexing the list by the position of the Pokemon's name in the evolution_line list and then getting the name at the next index, which takes O(1) time.
+    # It then multiplies the Pokemon's battle power, health, speed and defence by 1.5 as per the Task's requirements, all of which are basic arithmetic operations that take O(1) time.
+    # The time complexity of this method is O(1).
     def _evolve(self) -> None:
         """
         Evolves the Pokemon to the next stage in its evolution line, and updates
@@ -256,7 +271,7 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
 
 # TODO
 if __name__ == "__main__":
-    print(TypeEffectiveness.get_effectiveness(PokeType.GRASS, PokeType.WATER))
+    print(TypeEffectiveness.get_effectiveness(PokeType.GRASS, PokeType.FLYING))
     print(TypeEffectiveness.get_effectiveness(PokeType.WATER, PokeType.GRASS))
     print(TypeEffectiveness.get_effectiveness(PokeType.FIRE, PokeType.GRASS))
     print(TypeEffectiveness.get_effectiveness(PokeType.GRASS, PokeType.FIRE))
