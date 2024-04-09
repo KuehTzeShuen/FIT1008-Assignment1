@@ -120,8 +120,8 @@ class Battle:
 
     def optimise_battle(self) -> PokeTeam | None:
         while self.trainer_1.get_team().team_count > 0 and self.trainer_2.get_team().team_count > 0:
-            pokemon_1 = self.trainer_1.team.team.index(0)
-            pokemon_2 = self.trainer_2.team.team.index(0)
+            pokemon_1 = self.trainer_1.team.team.__getitem__(0)
+            pokemon_2 = self.trainer_2.team.team.__getitem__(0)
             
             self.one_on_one(pokemon_1, pokemon_2)
 
@@ -129,13 +129,17 @@ class Battle:
                 self.trainer_1.team.assign_team(self.criterion)
             else:
                 self.trainer_1.team.fainted_pokemon[pokemon_1.id] = self.trainer_1.team.team.delete_at_index(0)
+                print(f"{self.trainer_1.team.fainted_pokemon[pokemon_1.id]} has fainted")
                 self.trainer_1.team.team_count -= 1
+                self.trainer_1.team.team.length -= 1
 
             if pokemon_2.is_alive():
                 self.trainer_2.team.assign_team(self.criterion)
             else:
                 self.trainer_2.team.fainted_pokemon[pokemon_2.id] = self.trainer_2.team.team.delete_at_index(0)
+                print(f"{self.trainer_2.team.fainted_pokemon[pokemon_2.id]} has fainted")
                 self.trainer_2.team.team_count -= 1
+                self.trainer_2.team.team.length -= 1
         
         return self.trainer_2.team if self.trainer_1.team.team_count == 0 else self.trainer_1.team if self.trainer_2.team.team_count == 0 else None
     
@@ -166,7 +170,8 @@ class Battle:
             # print(f"{faster_pokemon.get_name()} has {faster_pokemon.health} health left")
             # if not faster_pokemon.is_alive():
             #     print(f"{faster_pokemon.get_name()} fainted")
-        
+        print(f"{faster_pokemon.get_name()} has {faster_pokemon.health} health")
+        print(f"{slower_pokemon.get_name()} has {slower_pokemon.health} health")
         if faster_pokemon.is_alive() and slower_pokemon.is_alive():
             faster_pokemon.health -= 1
             slower_pokemon.health -= 1

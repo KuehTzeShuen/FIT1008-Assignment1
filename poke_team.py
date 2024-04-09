@@ -132,27 +132,23 @@ class PokeTeam:
                 team.append(pokemon)
             self.team = CircularQueue(self.team.__len__())
             self.team = team
-
-        elif battle_mode == BattleMode.OPTIMISE:
-            self.team = ArraySortedList()
-            for pokemon in team:
-                self.team.add(pokemon)
+            self.team.team_count = self.team.__len__()
+            
         else:
             raise ValueError(f"Invalid battle mode")
         
     def assign_team(self, criterion: str) -> None:
-        team = ArraySortedList(self.team.__len__())
-        for i in range(len(self.team)):
+        print(f"{self.team_count} in team")
+        team = ArraySortedList(self.team_count)
+        print("assigning team")
+        print(self.team)
+        for i in range(self.team_count):
             pokemon = self.team[i]
-            if criterion == "health":
-                pokemon.key = pokemon.health
-                criteria = pokemon.health
-            for j in range(i):
-                if getattr(pokemon, criteria) < getattr(team[j], criteria):
-                    team.add(pokemon)
-                    break
-            else:
+            if pokemon:
+                print("assigning next")
+                pokemon.key = getattr(pokemon, criterion)
                 team.add(pokemon)
+        print("assign team success")
         self.team = team
         
     def special(self, battle_mode: BattleMode) -> None:

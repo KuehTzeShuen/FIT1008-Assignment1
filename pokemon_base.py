@@ -174,8 +174,17 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         Returns:
             int: The damage that this Pokemon inflicts on the other Pokemon during an attack.
         """
-        print(f"{self.name} and {other_pokemon.name} attacking")
-        return int((self.get_battle_power() * TypeEffectiveness.get_effectiveness(self.poketype, other_pokemon.poketype)))
+        attack = self.battle_power
+        defence = other_pokemon.defence
+        if defence < attack / 2:
+            damage = attack - defence
+        elif defence < attack:
+            damage = ceil(attack * 5/8 - defence / 4)
+        else:
+            damage = ceil(attack / 4)
+
+        print(f"{self.name} attacking for {damage}")
+        return damage
 
     def defend(self, damage: int) -> None:
         """
@@ -189,18 +198,9 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         self.health = self.health - effective_damage
 
     def calculate_damage(self, defender, pokedex_ratio_multiplier: float) -> None:
-        attack = self.attack(defender)
-        defence = defender.defence
-        if defence < attack / 2:
-            damage = attack - defence
-        elif defence < attack:
-            damage = ceil(attack * 5/8 - defence / 4)
-        else:
-            damage = ceil(attack / 4)
-
+        damage = self.attack(defender)
         effectiveness = TypeEffectiveness.get_effectiveness(self.poketype, defender.poketype)
         damage *= effectiveness
-
         damage = ceil(damage * pokedex_ratio_multiplier)
 
         defender.defend(damage)
