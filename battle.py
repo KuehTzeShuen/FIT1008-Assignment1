@@ -51,8 +51,8 @@ class Battle:
             self.trainer_1.get_team().assemble_team(BattleMode.ROTATE)
             self.trainer_2.get_team().assemble_team(BattleMode.ROTATE)
         elif self.battle_mode == BattleMode.OPTIMISE:
-            self.trainer_1.get_team().assign_team(BattleMode.OPTIMISE)
-            self.trainer_2.get_team().assign_team(BattleMode.OPTIMISE)
+            self.trainer_1.get_team().assign_team(self.criterion)
+            self.trainer_2.get_team().assign_team(self.criterion)
 #        self.trainer_1.fainted_pokemon = ArrayR(self.trainer_1.get_team().team_count)
 #        self.trainer_2.fainted_pokemon = ArrayR(self.trainer_2.get_team().team_count)
         # if self.battle_mode == BattleMode.ROTATE:
@@ -79,14 +79,17 @@ class Battle:
             if pokemon_1.is_alive():
                 self.trainer_1.team.team.push(pokemon_1)
                 self.trainer_1.team.team_count += 1
+            else:
+                self.trainer_1.team.fainted_pokemon[pokemon_1.id] = pokemon_1
             if pokemon_2.is_alive():
                 self.trainer_2.team.team.push(pokemon_2)
                 self.trainer_2.team.team_count += 1
+            else:
+                self.trainer_2.team.fainted_pokemon[pokemon_2.id] = pokemon_2
 
         return self.trainer_2.team if self.trainer_1.team.team_count == 0 else self.trainer_1.team if self.trainer_2.team.team_count == 0 else None
 
     def rotate_battle(self) -> PokeTeam | None:
-        
         while self.trainer_1.get_team().team_count > 0 and self.trainer_2.get_team().team_count > 0:
             pokemon_1 = self.trainer_1.team.team.serve()
             self.trainer_1.get_team().team_count -= 1
@@ -96,14 +99,14 @@ class Battle:
 
             self.one_on_one(pokemon_1, pokemon_2)
 
-            self.trainer_1.team.team.append(pokemon_1)
             if pokemon_1.is_alive():
+                self.trainer_1.team.team.append(pokemon_1)
                 self.trainer_1.get_team().team_count += 1
             else:
                 self.trainer_1.team.fainted_pokemon[pokemon_1.id] = pokemon_1
 
-            self.trainer_2.team.team.append(pokemon_2)
             if pokemon_2.is_alive():
+                self.trainer_2.team.team.append(pokemon_2)
                 self.trainer_2.get_team().team_count += 1
             else:
                 self.trainer_2.team.fainted_pokemon[pokemon_2.id] = pokemon_2
@@ -117,15 +120,22 @@ class Battle:
 
     def optimise_battle(self) -> PokeTeam | None:
         while self.trainer_1.get_team().team_count > 0 and self.trainer_2.get_team().team_count > 0:
-            pokemon_1 = team_1.delete_at_index(0)
-            pokemon_2 = team_2.delete_at_index(0)
+            pokemon_1 = self.trainer_1.team.team.index(0)
+            pokemon_2 = self.trainer_2.team.team.index(0)
             
             self.one_on_one(pokemon_1, pokemon_2)
 
             if pokemon_1.is_alive():
-                team_1.add(pokemon_1)
+                self.trainer_1.team.assign_team(self.criterion)
+            else:
+                self.trainer_1.team.fainted_pokemon[pokemon_1.id] = self.trainer_1.team.team.delete_at_index(0)
+                self.trainer_1.team.team_count -= 1
+
             if pokemon_2.is_alive():
-                team_2.add(pokemon_2)
+                self.trainer_2.team.assign_team(self.criterion)
+            else:
+                self.trainer_2.team.fainted_pokemon[pokemon_2.id] = self.trainer_2.team.team.delete_at_index(0)
+                self.trainer_2.team.team_count -= 1
         
         return self.trainer_2.team if self.trainer_1.team.team_count == 0 else self.trainer_1.team if self.trainer_2.team.team_count == 0 else None
     
@@ -169,10 +179,6 @@ class Battle:
             slower_pokemon.level_up()
             print(f"{slower_pokemon.get_name()} leveled up to level {slower_pokemon.get_level()}")
         print("")
-
-    def perform_special(self, pokemon):
-        # Implement the special action here
-        print(f"{pokemon.get_name()} performed a special action")
 
 if __name__ == '__main__':
     t1 = Trainer('Ash')

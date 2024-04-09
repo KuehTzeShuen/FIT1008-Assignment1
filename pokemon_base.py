@@ -148,7 +148,11 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         Returns:
             list: The evolution of the Pokemon.
         """
-        return self.evolution_line
+        if len(self.evolution_line) == 1:
+            return self.evolution_line
+
+        current_index = self.evolution_line.index(self.name)
+        return self.evolution_line[current_index:]
 
     def get_battle_power(self) -> int:
         """

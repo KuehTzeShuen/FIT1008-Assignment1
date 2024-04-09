@@ -85,7 +85,8 @@ class PokeTeam:
                 print(f"idididid{pokemon.id}")
                 temp_team[pokemon.id] = pokemon
         for pokemon in self.team.array:
-            if pokemon and pokemon.health > 0:
+            if pokemon:
+                print(f"pokemon: {pokemon}")
                 pokemon_type = type(pokemon)
                 current_stage_index = pokemon.get_evolution().index(pokemon.name)
                 health_multiplier = 1.5 ** current_stage_index
@@ -93,6 +94,7 @@ class PokeTeam:
                 temp_team[pokemon.id] = pokemon
         self.fainted_pokemon = ArrayR(self.team.length)
         self.team = ArrayR(team_length)
+        print(temp_team)
         for i in range(len(temp_team)):
             self.team[i] = temp_team[i]
         print(self.team)
@@ -139,16 +141,18 @@ class PokeTeam:
             raise ValueError(f"Invalid battle mode")
         
     def assign_team(self, criterion: str) -> None:
-        
         team = ArraySortedList(self.team.__len__())
         for i in range(len(self.team)):
             pokemon = self.team[i]
+            if criterion == "health":
+                pokemon.key = pokemon.health
+                criteria = pokemon.health
             for j in range(i):
-                if getattr(pokemon, criterion) < getattr(team[j], criterion):
-                    team.add(j, pokemon)
+                if getattr(pokemon, criteria) < getattr(team[j], criteria):
+                    team.add(pokemon)
                     break
             else:
-                team.append(pokemon)
+                team.add(pokemon)
         self.team = team
         
     def special(self, battle_mode: BattleMode) -> None:
@@ -166,7 +170,7 @@ class PokeTeam:
                 self.team.append(self.team.pop())
 
         elif battle_mode == BattleMode.OPTIMISE:
-            self.team = self.team[::-1]
+            print("special optimise")
         else:
             raise ValueError(f"Invalid battle mode")
 
