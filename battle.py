@@ -32,6 +32,11 @@ class Battle:
             print("congrats winner")
         elif self.battle_mode == BattleMode.ROTATE:
             winning_team = self.rotate_battle()
+            temp_array = ArrayR(winning_team.team_count)
+            for i in range(winning_team.team_count):
+                temp_array[i] = winning_team.team.serve()
+            for i in range(winning_team.team_count):
+                winning_team.team = temp_array
         elif self.battle_mode == BattleMode.OPTIMISE:
             winning_team = self.optimise_battle()
         print("congrats winner")
@@ -109,7 +114,6 @@ class Battle:
             self.trainer_1.team.team_count -= 1
             pokemon_2 = self.trainer_2.team.team.serve()
             self.trainer_2.team.team_count -= 1
-            print("attacking")
 
             self.one_on_one(pokemon_1, pokemon_2)
 
@@ -125,8 +129,6 @@ class Battle:
             else:
                 self.trainer_2.team.fainted_pokemon[pokemon_2.id] = pokemon_2
 
-        print("team test")
-        self.trainer_1.team.team.length = 6
         return self.trainer_2.team if self.trainer_1.team.team_count == 0 else self.trainer_1.team if self.trainer_2.team.team_count == 0 else None
 
     def optimise_battle(self) -> PokeTeam | None:
@@ -157,28 +159,19 @@ class Battle:
         self.trainer_2.register_pokemon(pokemon_1)
         faster_pokemon, slower_pokemon, faster_trainer, slower_trainer = (pokemon_1, pokemon_2, self.trainer_1, self.trainer_2) if pokemon_1.get_speed() >= pokemon_2.get_speed() else  (pokemon_2, pokemon_1, self.trainer_2, self.trainer_1) 
 
-        print(f"{faster_pokemon.get_name()} has {faster_pokemon.health} health")
-        print(f"{slower_pokemon.get_name()} has {slower_pokemon.health} health")
-        print(self.trainer_1.get_pokedex_completion()*15)
-        print(self.trainer_2.get_pokedex_completion()*15)
-        print("%")
         faster_pokemon.calculate_damage(slower_pokemon, faster_trainer.get_pokedex_completion()/slower_trainer.get_pokedex_completion()) 
-        print(faster_trainer.get_pokedex_completion()/slower_trainer.get_pokedex_completion())
-        print(faster_trainer.get_name())      
+  
         if slower_pokemon.is_alive() or faster_pokemon.get_speed() == slower_pokemon.get_speed():
             slower_pokemon.calculate_damage(faster_pokemon, slower_trainer.get_pokedex_completion()/faster_trainer.get_pokedex_completion())
-            print(slower_trainer.get_pokedex_completion()/faster_trainer.get_pokedex_completion())
-            print(slower_trainer.get_name())
-        print(f"{faster_pokemon.get_name()} has {faster_pokemon.health} health")
-        print(f"{slower_pokemon.get_name()} has {slower_pokemon.health} health")
+
         if faster_pokemon.is_alive() and slower_pokemon.is_alive():
             faster_pokemon.health -= 1
             slower_pokemon.health -= 1
-        elif faster_pokemon.is_alive() and not slower_pokemon.is_alive():
+        if faster_pokemon.is_alive() and not slower_pokemon.is_alive():
             print(f"{slower_pokemon.get_name()} fainted")
             faster_pokemon.level_up()
             print(f"{faster_pokemon.get_name()} leveled up to level {faster_pokemon.get_level()}")
-        elif slower_pokemon.is_alive() and not faster_pokemon.is_alive():
+        if slower_pokemon.is_alive() and not faster_pokemon.is_alive():
             print(f"{faster_pokemon.get_name()} fainted")
             slower_pokemon.level_up()
             print(f"{slower_pokemon.get_name()} leveled up to level {slower_pokemon.get_level()}")

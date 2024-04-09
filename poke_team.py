@@ -19,6 +19,9 @@ class PokeTeam:
         self.copy = ArrayR(self.TEAM_LIMIT)
         self.team_count = 0
         self.fainted_pokemon = ArrayR(self.TEAM_LIMIT)
+        self.optimise_special = 1
+        self.criterion = None
+
 
     def choose_manually(self):
         self.team = ArrayR(self.TEAM_LIMIT)
@@ -95,10 +98,8 @@ class PokeTeam:
                 temp_team[pokemon.id] = pokemon
         self.fainted_pokemon = ArrayR(self.team.length)
         self.team = ArrayR(team_length)
-        print(temp_team)
         for i in range(len(temp_team)):
             self.team[i] = temp_team[i]
-        print(self.team)
         print("done healing")
         self.team_count = len(self.team)
         if battle_mode == BattleMode.OPTIMISE:
@@ -143,21 +144,18 @@ class PokeTeam:
         else:
             raise ValueError(f"Invalid battle mode")
         
-    def assign_team(self, criterion: str) -> None:
-        print(f"{self.team_count} in team")
+    def assign_team(self, criterion: str = None) -> None:
+        if criterion:
+            self.criterion = criterion
         team = ArraySortedList(self.team_count)
         self.copy = ArrayR(self.team_count)
-        print("assigning team")
-        print(self.team)
         for i in range(self.team_count):
             pokemon = self.team[i]
             pokemon.id = i
             if pokemon:
-                print("assigning next")
-                pokemon.key = getattr(pokemon, criterion)
+                pokemon.key = getattr(pokemon, self.criterion) * self.optimise_special
                 team.add(pokemon)
                 self.copy[i] = pokemon
-        print("assign team success")
         self.team = team
         
     def special(self, battle_mode: BattleMode) -> None:
@@ -173,20 +171,24 @@ class PokeTeam:
                 temp_array[i] = self.team.pop()
                 print(f"temp array: {temp_array[i]}")
                 self.team_count -= 1
-                
+            print(self.team_count)
             for i in range(mid_index, length):
                 temp_array[i].id = self.team_count
                 self.team.push(temp_array[i])
-                print(f"pushed: {temp_array[i]}")
+                print(f"pushed: {temp_array[i]} {temp_array[i].id}")
                 self.copy[self.team_count] = temp_array[i]
                 self.team_count += 1
                 
-            for i in range(mid_index - 1, -1, -1):  # Push the rest in normal order
+            for i in range(mid_index - 1, -1, -1):
                 temp_array[i].id = self.team_count
                 self.team.push(temp_array[i])
                 self.copy[self.team_count] = temp_array[i]
                 self.team_count += 1
+            print("team after special set")
             print(self.team)
+            print("copy after special set")
+            print(self.copy)
+            
 
         elif battle_mode == BattleMode.ROTATE:
             mid_index = len(self.team) // 2
@@ -194,7 +196,9 @@ class PokeTeam:
                 self.team.append(self.team.pop())
 
         elif battle_mode == BattleMode.OPTIMISE:
-            print("special optimise")
+            print("Special optimise")
+            self.optimise_special *= -1
+            self.assign_team()
         else:
             raise ValueError(f"Invalid battle mode")
 
