@@ -26,6 +26,7 @@ class TestBattle(unittest.TestCase):
         print(self.trainer1.name)
         print(self.trainer1.get_team())
         self.trainer1.get_team().special(BattleMode.SET)
+        print(self.trainer1.get_team())
         return battle.commence_battle(), self.trainer2
 
     def __test_rotate_battle(self) -> Tuple[Trainer, Trainer]:

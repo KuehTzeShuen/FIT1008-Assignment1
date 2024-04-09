@@ -205,7 +205,7 @@ class Pokemon(ABC):
         effectiveness = TypeEffectiveness.get_effectiveness(self.poketype, other_pokemon.poketype)
         damage *= effectiveness
 
-        print(f"{self.name} attacking for {damage} {effectiveness}")
+        #print(f"{self.name} attacking for {damage} {effectiveness}")
         return damage
 
     def defend(self, damage: int) -> None:
@@ -225,7 +225,6 @@ class Pokemon(ABC):
     def calculate_damage(self, defender, pokedex_ratio_multiplier: float) -> None:
         battle_power = self.attack(defender)
         effective_damage = ceil(battle_power * pokedex_ratio_multiplier)
-        print(pokedex_ratio_multiplier)
         defender.defend(effective_damage)
 
     def level_up(self) -> None:

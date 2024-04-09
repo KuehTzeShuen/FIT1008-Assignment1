@@ -3,9 +3,6 @@ from data_structures.referential_array import ArrayR
 from poke_team import Trainer, PokeTeam
 from typing import Tuple
 from battle_mode import BattleMode
-from data_structures.stack_adt import ArrayStack
-from data_structures.queue_adt import CircularQueue
-from pokemon_base import TypeEffectiveness
 
 class Battle:
 
@@ -24,12 +21,6 @@ class Battle:
                 temp_array[i] = winning_team.team.pop()
             for i in range(winning_team.team_count):
                 winning_team.team = temp_array
-            print("drunroll")
-            print(self.trainer_1.get_team())
-            print(self.trainer_2.get_team())
-            print("drumroll")
-            print(winning_team.team)
-            print("congrats winner")
         elif self.battle_mode == BattleMode.ROTATE:
             winning_team = self.rotate_battle()
             temp_array = ArrayR(winning_team.team_count)
@@ -39,14 +30,13 @@ class Battle:
                 winning_team.team = temp_array
         elif self.battle_mode == BattleMode.OPTIMISE:
             winning_team = self.optimise_battle()
-        print("congrats winner")
-        print(winning_team.copy)
-        print("congrats winner")
         if winning_team == self.trainer_1.get_team():
             print(self.trainer_1)
+            #print(self.trainer_1.get_team())
             return self.trainer_1
         elif winning_team == self.trainer_2.get_team():
             print(self.trainer_2)
+            #print(self.trainer_2.get_team())
             return self.trainer_2
         return None
 
@@ -60,7 +50,6 @@ class Battle:
             print("team 2 was empty")
             print(self.trainer_2.team)
 
-        print("progress at least")
         if self.battle_mode == BattleMode.SET:
             self.trainer_1.get_team().assemble_team(BattleMode.SET)
             self.trainer_2.get_team().assemble_team(BattleMode.SET)
@@ -70,21 +59,9 @@ class Battle:
         elif self.battle_mode == BattleMode.OPTIMISE:
             self.trainer_1.get_team().assign_team(self.criterion)
             self.trainer_2.get_team().assign_team(self.criterion)
-#        self.trainer_1.fainted_pokemon = ArrayR(self.trainer_1.get_team().team_count)
-#        self.trainer_2.fainted_pokemon = ArrayR(self.trainer_2.get_team().team_count)
-        # if self.battle_mode == BattleMode.ROTATE:
-        #     team_1 = self.trainer_1.get_team().to_queue()
-        #     team_2 = self.trainer_2.get_team().to_queue()
-        # if self.battle_mode == BattleMode.OPTIMISE:
-        #     team_1 = self.trainer_1.get_team().to_priority_queue(self.criterion)
-        #     team_2 = self.trainer_2.get_team().to_priority_queue(self.criterion)
-        print("test2")
-        print("test2testend")
         return self.trainer_1, self.trainer_2
 
     def set_battle(self) -> PokeTeam | None:        
-        print("here")
-
         while self.trainer_1.team.team_count > 0 and self.trainer_2.team.team_count > 0:
             pokemon_1 = self.trainer_1.team.team.pop()
             self.trainer_1.team.team_count -= 1
@@ -122,7 +99,6 @@ class Battle:
                 self.trainer_1.get_team().team_count += 1
             else:
                 self.trainer_1.team.fainted_pokemon[pokemon_1.id] = pokemon_1
-
             if pokemon_2.is_alive():
                 self.trainer_2.team.team.append(pokemon_2)
                 self.trainer_2.get_team().team_count += 1
@@ -144,7 +120,6 @@ class Battle:
                 self.trainer_1.team.fainted_pokemon[pokemon_1.id] = self.trainer_1.team.team.delete_at_index(0)
                 print(f"{self.trainer_1.team.fainted_pokemon[pokemon_1.id]} has fainted")
                 self.trainer_1.team.team_count -= 1
-
             if pokemon_2.is_alive():
                 self.trainer_2.team.assign_team(self.criterion)
             else:
@@ -160,10 +135,10 @@ class Battle:
         faster_pokemon, slower_pokemon, faster_trainer, slower_trainer = (pokemon_1, pokemon_2, self.trainer_1, self.trainer_2) if pokemon_1.get_speed() >= pokemon_2.get_speed() else  (pokemon_2, pokemon_1, self.trainer_2, self.trainer_1) 
 
         faster_pokemon.calculate_damage(slower_pokemon, faster_trainer.get_pokedex_completion()/slower_trainer.get_pokedex_completion()) 
-  
         if slower_pokemon.is_alive() or faster_pokemon.get_speed() == slower_pokemon.get_speed():
             slower_pokemon.calculate_damage(faster_pokemon, slower_trainer.get_pokedex_completion()/faster_trainer.get_pokedex_completion())
-
+        #print(f"{faster_pokemon.get_name()} has {faster_pokemon.get_health()} health left")
+        #print(f"{slower_pokemon.get_name()} has {slower_pokemon.get_health()} health left")
         if faster_pokemon.is_alive() and slower_pokemon.is_alive():
             faster_pokemon.health -= 1
             slower_pokemon.health -= 1

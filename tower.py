@@ -46,11 +46,6 @@ class BattleTower:
         enemy_trainer = self.enemy_trainers.serve()
         self.my_trainer.get_team().regenerate_team(BattleMode.ROTATE)
         enemy_trainer.get_team().regenerate_team(BattleMode.ROTATE)
-        print("tower battle")
-        print("my team")
-        print(self.my_trainer.team)
-        print("enemy team")
-        print(enemy_trainer.get_team())
         battle = Battle(self.my_trainer, enemy_trainer, BattleMode.ROTATE)
 
         winner = battle.commence_battle()
@@ -82,7 +77,6 @@ if __name__ == "__main__":
         trainer.pick_team("random")
         tower.set_my_trainer(trainer)
         tower.generate_enemy_trainers(5)
-        print("here")
         tower.next_battle()
         # for _ in range(5):
         #     battle_result, my_trainer, enemy_trainer, my_lives, enemy_lives = tower.next_battle()

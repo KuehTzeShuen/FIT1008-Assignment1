@@ -48,49 +48,21 @@ class PokeTeam:
             self.team[i] = all_pokemon[rand_int]()
             self.team_count += 1
             self.team[i].id = i
-        
-        # self.team = ArrayR(PokeTeam.TEAM_LIMIT)
-        # for i in range(PokeTeam.TEAM_LIMIT):
-        #     self.team[i] = random.choice(self.POKE_LIST)()
-        #     self.team[i].id = i
-
-        # shuffled_pokemon = self.POKE_LIST[:]
-        # for i in range(len(shuffled_pokemon) - 1, 0, -1):
-        #     j = int(i * random.random())
-        #     shuffled_pokemon[i], shuffled_pokemon[j] = shuffled_pokemon[j], shuffled_pokemon[i]
-        # for i in range(self.TEAM_LIMIT):
-        #     self.team[i] = shuffled_pokemon[i]()
-        #     self.team[i].id = i
     
     def regenerate_team(self, battle_mode: BattleMode, criterion: str = None) -> None:
         team_length = len(self.copy)
         self.team.length= team_length
         temp_team = ArrayR(team_length)
-        print("heal!!!")
-        print(self.fainted_pokemon)
-        print(self.team)
-        print("heal!!")
-
-        # for pokemon in self.fainted_pokemon:
-        #     pokemon_type = type(pokemon)
-        #     current_stage_index = pokemon.get_evolution().index(pokemon.name) - 1
-        #     health_multiplier = 1.5 ** current_stage_index
-        #     pokemon.health = int(pokemon_type().health * health_multiplier)
-        #     temp_team[pokemon.id] = pokemon
 
         for pokemon in self.fainted_pokemon:
             if pokemon:
                 pokemon_type = type(pokemon)
                 current_stage_index = pokemon.get_evolution().index(pokemon.name)
-                print(f"current stage index: {current_stage_index}")
                 health_multiplier = 1.5 ** current_stage_index
                 pokemon.health = int(pokemon_type().health * health_multiplier)
-                print(pokemon.name, pokemon_type().health, health_multiplier, pokemon.health)
-                print(f"idididid{pokemon.id}")
                 temp_team[pokemon.id] = pokemon
         for pokemon in self.team:
             if pokemon:
-                print(f"pokemon: {pokemon}")
                 pokemon_type = type(pokemon)
                 current_stage_index = pokemon.get_evolution().index(pokemon.name)
                 health_multiplier = 1.5 ** current_stage_index
@@ -100,7 +72,6 @@ class PokeTeam:
         self.team = ArrayR(team_length)
         for i in range(len(temp_team)):
             self.team[i] = temp_team[i]
-        print("done healing")
         self.team_count = len(self.team)
         if battle_mode == BattleMode.OPTIMISE:
             self.assign_team(criterion)
@@ -108,23 +79,15 @@ class PokeTeam:
             self.assemble_team(battle_mode)
 
     def assemble_team(self, battle_mode: BattleMode) -> None:
-        #self.regenerate_team()
-        #team = self.team.copy()
-        print("assembling team")
-        # for i in range(len(team)):
-        #     print(team[i])
-
         if battle_mode == BattleMode.SET:
             team = ArrayStack(self.team.__len__())
             self.copy = ArrayR(self.team.__len__())
             for i in range(len(self.team)):
                 pokemon = self.team[i]
                 pokemon.id = i
-                print(f"pushing {pokemon}")
                 team.push(pokemon)
                 self.copy[i] = pokemon
 
-            print("assemble set success")
             self.team = team
             self.team.team_count = self.team.__len__()
 
@@ -134,7 +97,6 @@ class PokeTeam:
             for i in range(len(self.team)):
                 pokemon = self.team[i]
                 pokemon.id = i
-                print(f"pushing {pokemon}")
                 team.append(pokemon)
                 self.copy[i] = pokemon
             self.team = CircularQueue(self.team.__len__())
@@ -159,36 +121,37 @@ class PokeTeam:
         self.team = team
         
     def special(self, battle_mode: BattleMode) -> None:
-        print(self.team)
         if battle_mode == BattleMode.SET:
-            print("Special set")
             mid_index = len(self.team) // 2
-            print(len(self.team))
-            length = len(self.team)
-            temp_array = ArrayR(len(self.team))
-            
-            for i in range(len(self.team)):
+            temp_array = ArrayR(mid_index)
+            for i in range(mid_index):
                 temp_array[i] = self.team.pop()
-                print(f"temp array: {temp_array[i]}")
                 self.team_count -= 1
-            print(self.team_count)
-            for i in range(mid_index, length):
-                temp_array[i].id = self.team_count
-                self.team.push(temp_array[i])
-                print(f"pushed: {temp_array[i]} {temp_array[i].id}")
-                self.copy[self.team_count] = temp_array[i]
-                self.team_count += 1
-                
-            for i in range(mid_index - 1, -1, -1):
+            for i in range(mid_index):
                 temp_array[i].id = self.team_count
                 self.team.push(temp_array[i])
                 self.copy[self.team_count] = temp_array[i]
                 self.team_count += 1
-            print("team after special set")
-            print(self.team)
-            print("copy after special set")
-            print(self.copy)
+        # if battle_mode == BattleMode.SET:
             
+        #     mid_index = len(self.team) // 2
+        #     length = len(self.team)
+        #     temp_array = ArrayR(len(self.team))
+            
+        #     for i in range(len(self.team)):
+        #         temp_array[i] = self.team.pop()
+        #         self.team_count -= 1
+        #     for i in range(mid_index-1, -1, -1):
+        #         temp_array[i].id = self.team_count
+        #         self.team.push(temp_array[i])
+        #         self.copy[self.team_count] = temp_array[i]
+        #         self.team_count += 1
+                
+            # for i in range(mid_index - 1, -1, -1):
+            #     temp_array[i].id = self.team_count
+            #     self.team.push(temp_array[i])
+            #     self.copy[self.team_count] = temp_array[i]
+            #     self.team_count += 1
 
         elif battle_mode == BattleMode.ROTATE:
             mid_index = len(self.team) // 2
@@ -196,21 +159,16 @@ class PokeTeam:
                 self.team.append(self.team.pop())
 
         elif battle_mode == BattleMode.OPTIMISE:
-            print("Special optimise")
             self.optimise_special *= -1
             self.assign_team()
         else:
             raise ValueError(f"Invalid battle mode")
 
     def __getitem__(self, index: int):
-        print(self.team)
-        print(f"index: {index}")
         if isinstance(self.team, ArrayStack):
-            print(f"set mon: {self.copy[index]}")
             return self.copy[index]
         elif isinstance(self.team, CircularQueue):
             real_index = (self.team.front + index) % len(self.copy)
-            print(f"real index: {real_index}")
             return self.copy[real_index]
         else:
             return self.team[index]
@@ -259,10 +217,7 @@ class Trainer:
 
     def __str__(self) -> str:
         return f"Trainer {self.name} Pokedex Completion: {int(self.get_pokedex_completion()*100)}%"
-    
-# class Pokedex:
-#     def __init__(self):
-#         self.pokedex = set()
+
 
 if __name__ == '__main__':
     t = Trainer('Ash')
