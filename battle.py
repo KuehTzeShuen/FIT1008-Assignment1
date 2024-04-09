@@ -19,16 +19,18 @@ class Battle:
         winning_team = None
         if self.battle_mode == BattleMode.SET:
             winning_team = self.set_battle()
-
         elif self.battle_mode == BattleMode.ROTATE:
             winning_team = self.rotate_battle()
         elif self.battle_mode == BattleMode.OPTIMISE:
-            return self.optimise_battle()
+            winning_team = self.optimise_battle()
         print("congrats winner")
+        
         print("congrats winner")
         if winning_team == self.trainer_1.get_team():
+            print(self.trainer_1)
             return self.trainer_1
         elif winning_team == self.trainer_2.get_team():
+            print(self.trainer_2)
             return self.trainer_2
         return None
 
@@ -63,7 +65,7 @@ class Battle:
         #     team_2 = self.trainer_2.get_team().to_priority_queue(self.criterion)
         print("test2")
         print("test2testend")
-        return self.trainer_1.team, self.trainer_2
+        return self.trainer_1, self.trainer_2
 
     def set_battle(self) -> PokeTeam | None:        
         print("here")
@@ -131,7 +133,6 @@ class Battle:
                 self.trainer_1.team.fainted_pokemon[pokemon_1.id] = self.trainer_1.team.team.delete_at_index(0)
                 print(f"{self.trainer_1.team.fainted_pokemon[pokemon_1.id]} has fainted")
                 self.trainer_1.team.team_count -= 1
-                self.trainer_1.team.team.length -= 1
 
             if pokemon_2.is_alive():
                 self.trainer_2.team.assign_team(self.criterion)
@@ -139,7 +140,6 @@ class Battle:
                 self.trainer_2.team.fainted_pokemon[pokemon_2.id] = self.trainer_2.team.team.delete_at_index(0)
                 print(f"{self.trainer_2.team.fainted_pokemon[pokemon_2.id]} has fainted")
                 self.trainer_2.team.team_count -= 1
-                self.trainer_2.team.team.length -= 1
         
         return self.trainer_2.team if self.trainer_1.team.team_count == 0 else self.trainer_1.team if self.trainer_2.team.team_count == 0 else None
     

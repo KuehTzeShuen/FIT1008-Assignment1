@@ -5,6 +5,8 @@ from abc import ABC
 from enum import Enum
 from math import ceil
 
+from data_structures.referential_array import ArrayR
+
 class PokeType(Enum):
     """
     This class contains all the different types that a Pokemon could belong to
@@ -29,7 +31,19 @@ class TypeEffectiveness:
     """
     Represents the type effectiveness of one Pokemon type against another.
     """
+    tablesize = len(PokeType) ** 2
+    effectiveness_table = ArrayR(tablesize)
 
+    with open("type_effectiveness.csv", encoding='utf-8') as file:
+        next(file)
+
+        i = 0
+        for line in file:
+            values = line.strip().split(",")
+            for value in values:
+                effectiveness_table[i] = value
+                i += 1
+                
     @classmethod
     def get_effectiveness(cls, attack_type: PokeType, defend_type: PokeType) -> float:
         """
@@ -43,11 +57,8 @@ class TypeEffectiveness:
             float: The effectiveness of the attack, as a float value between 0 and 4.
         """
 
-        with open("type_effectiveness.csv", encoding='utf-8') as file:
-            next(file)
-            lines = file.readlines()
-            data = [line.strip().split(',') for line in lines]
-            return float(data[attack_type.value][defend_type.value])
+        return float(TypeEffectiveness.effectiveness_table[(attack_type.value * len(PokeType)) + defend_type.value])
+
         
     # TODO
     def __len__(self) -> int:
