@@ -12,6 +12,7 @@ class Battle:
         self.battle_mode = battle_mode
         self.criterion = criterion
 
+    #
     def commence_battle(self) -> Trainer | None:
         winning_team = None
         if self.battle_mode == BattleMode.SET:
@@ -40,6 +41,14 @@ class Battle:
             return self.trainer_2
         return None
 
+    # The function first determines if the teams are empty, if they are, it will randomly pick a team for the trainer.
+    # It then assembles the team based on the battle mode. If the battle mode is SET, it will assemble the team in the order they were picked etc.
+    # The pick_team("random") function has a time complexity of O(n) where n is the number of pokemon in the TEAM_LIMIT.
+    # The assemble_team function has a time complexity of O(n) where n is the number of pokemon in the team.
+    # The assign_team function has a time complexity of O(n) where n is the number of pokemon in the team.
+    # Creating the teams has a time complexity of O(n) where n is the number of pokemon in the team.
+    # The best case time complexity is O(1) if the teams only have one pokemon and the battle mode is SET.
+    # The worst case time complexity is O(n) if the teams have n pokemon or if team count is 0.
     def _create_teams(self) -> Tuple[PokeTeam, PokeTeam]:
         if self.trainer_1.team.team_count == 0:
             self.trainer_1.pick_team("random")
@@ -61,6 +70,7 @@ class Battle:
             self.trainer_2.get_team().assign_team(self.criterion)
         return self.trainer_1, self.trainer_2
 
+    # The function first creates the teams by calling the _create_teams() function.
     def set_battle(self) -> PokeTeam | None:        
         while self.trainer_1.team.team_count > 0 and self.trainer_2.team.team_count > 0:
             pokemon_1 = self.trainer_1.team.team.pop()
@@ -129,6 +139,13 @@ class Battle:
         
         return self.trainer_2.team if self.trainer_1.team.team_count == 0 else self.trainer_1.team if self.trainer_2.team.team_count == 0 else None
     
+    # We have a one on one battle between two pokemon. When they meet, the two trainers register their opponent's pokemons, which takes O(1) time in the BSet data structure.
+    # The faster_pokemon and faster_trainer attack first and the slower_pokemon and slower_trainer attack second if they are still alive.
+    # The faster pokemon calculates the damage it will do to the slower pokemon and the slower pokemon calculates the damage it will do to the faster pokemon. (The type effectiveness and ppokedex completion ratio multipliers were calculated with the attack() function in the calculate_damage() function)
+    # attack(), calculate_damage() and defend() are all arithmetic operations that take O(1) time.
+    # The program then checks if both pokemon have 1 or more health, if they do, they both lose 1 health by calling their health attribute with O(1) time.
+    # If the slower pokemon is still alive, the alive pokemon levels up and potentially evolves, and the fainted pokemon does not gain anything.
+    # The function has a time complexity of O(1) as it only performs a constant number of operations.
     def one_on_one(self, pokemon_1, pokemon_2):
         self.trainer_1.register_pokemon(pokemon_2)
         self.trainer_2.register_pokemon(pokemon_1)

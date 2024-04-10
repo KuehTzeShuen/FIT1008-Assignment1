@@ -62,6 +62,7 @@ class BattleTower:
 
         if self.lives > 0:
             print("You won")
+            print(self.my_trainer.get_team())
             return self.my_trainer, enemy_trainer, self.lives, enemy_trainer.lives
         else:
             print("Ya lost, bub")

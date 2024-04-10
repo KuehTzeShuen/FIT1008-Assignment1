@@ -1,3 +1,4 @@
+# Unless otherwise stated, we assume that the time complexity of the function described takes O(1) time.
 """
 This module contains PokeType, TypeEffectiveness and an abstract version of the Pokemon Class
 """
@@ -41,6 +42,7 @@ class TypeEffectiveness:
     # Only one array is strictly necessary, as all the values are stored sequentially to the type of the attacker against the type of the defender.
     # The values are stored in the array in the order of the PokeType enum, so the first 15 values are the effectiveness of fire against all types, the next 15 are the effectiveness of water against all types, etc.
     # The time complexity of this method is O(n), where n is the number of lines in the .csv file / the number of types of pokemon.
+    # Since the number of types is fixed, the time complexity in this case is O(1).
     # There is no best or worst case, as the number of types and their interactions are fixed.
     with open("type_effectiveness.csv", encoding='utf-8') as file:
         next(file)
