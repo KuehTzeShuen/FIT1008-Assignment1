@@ -70,7 +70,6 @@ class Battle:
             self.trainer_2.pick_team("random")
             print("team 2 was empty")
             print(self.trainer_2.team)
-
         if self.battle_mode == BattleMode.SET:
             self.trainer_1.get_team().assemble_team(BattleMode.SET)
             self.trainer_2.get_team().assemble_team(BattleMode.SET)
@@ -176,8 +175,8 @@ class Battle:
         faster_pokemon.calculate_damage(slower_pokemon, faster_trainer.get_pokedex_completion()/slower_trainer.get_pokedex_completion()) 
         if slower_pokemon.is_alive() or faster_pokemon.get_speed() == slower_pokemon.get_speed():
             slower_pokemon.calculate_damage(faster_pokemon, slower_trainer.get_pokedex_completion()/faster_trainer.get_pokedex_completion())
-        #print(f"{faster_pokemon.get_name()} has {faster_pokemon.get_health()} health left")
-        #print(f"{slower_pokemon.get_name()} has {slower_pokemon.get_health()} health left")
+        print(f"{faster_pokemon.get_name()} has {faster_pokemon.get_health()} health left")
+        print(f"{slower_pokemon.get_name()} has {slower_pokemon.get_health()} health left")
         if faster_pokemon.is_alive() and slower_pokemon.is_alive():
             faster_pokemon.health -= 1
             slower_pokemon.health -= 1

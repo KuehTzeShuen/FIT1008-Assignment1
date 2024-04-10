@@ -53,10 +53,6 @@ class PokeTeam:
                         temp_team[j] = self.team[j]
                     self.team = temp_team
                     break
-            # if all_pokemon_types.index(name) == -1:
-            #     print(f"No Pokemon named {name} found.")
-            #     continue
-            
             for PokemonClass in all_pokemon_types:
                 pokemon_instance = PokemonClass()
                 if pokemon_instance.name == name:
@@ -183,12 +179,13 @@ class PokeTeam:
                 self.copy[self.team_count] = temp_array[i]
                 self.team_count += 1
         elif battle_mode == BattleMode.ROTATE:
-            temp_array = ArrayR(len(self.team) - mid_index)
             length = len(self.team)
             mid_index = length // 2
-            for i in range(mid_index):
-                self.team.append(self.team.pop())
-            for i in range(length = mid_index):
+            temp_array = ArrayR(length - mid_index)
+            for i in range(mid_index, length):
+                temp_array[i - mid_index] = self.team.pop()
+                self.team_count -= 1
+            for i in range(len(temp_array)):
                 temp_array[i].id = self.team_count
                 self.team.push(temp_array[i])
                 self.copy[self.team_count] = temp_array[i]

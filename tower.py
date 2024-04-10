@@ -56,30 +56,22 @@ class BattleTower:
     def next_battle(self) -> Tuple[Trainer, PokeTeam, int, int]:
         if len(self.enemy_trainers) == 0:
             return "Team Wipe."
-        
         enemy_trainer = self.enemy_trainers.serve()
         self.my_trainer.get_team().regenerate_team(BattleMode.ROTATE)
         enemy_trainer.get_team().regenerate_team(BattleMode.ROTATE)
         battle = Battle(self.my_trainer, enemy_trainer, BattleMode.ROTATE)
-
         winner = battle.commence_battle()
         if winner == self.my_trainer:
             enemy_trainer.lives -= 1
-            print("Enemy life -1")
             self.enemy_lives_taken += 1
             if enemy_trainer.lives > 0:
                 self.enemy_trainers.append((enemy_trainer))
-                print("Enemy defeated")
         else:
             self.lives -= 1
             self.enemy_trainers.append((enemy_trainer))
-
         if self.lives > 0:
-            print("You won")
-            print(self.my_trainer.get_team())
             return self.my_trainer, enemy_trainer, self.lives, enemy_trainer.lives
         else:
-            print("Ya lost, bub")
             return self.my_trainer, enemy_trainer, self.lives, enemy_trainer.lives
 
     def enemies_defeated(self) -> int:
