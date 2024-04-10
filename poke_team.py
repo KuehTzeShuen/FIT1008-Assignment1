@@ -197,21 +197,7 @@ class PokeTeam:
             self.optimise_special *= -1
             self.assign_team()
         else:
-            raise ValueError(f"Invalid battle mode")
-        
-    def rearrange(self) -> None:
-        temp_array = ArrayR(self.team_count)
-        if isinstance(self.team, ArrayStack):
-            for i in range(self.team_count):
-                temp_array[i] = self.team.pop()
-            for i in range(self.team_count):
-                self.team = temp_array
-        elif isinstance(self.team, CircularQueue):
-            for i in range(self.team_count):
-                self.team.append(self.team.serve())
-            for i in range(self.team_count):
-                self.team.append(self.team.serve())
-        
+            raise ValueError(f"Invalid battle mode")  
 
     # The __getitem__ function has a time complexity of O(1) as it returns the pokemon at the index of the team attribute of the PokeTeam class.
     def __getitem__(self, index: int):

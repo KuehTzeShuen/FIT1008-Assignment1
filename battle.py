@@ -1,3 +1,6 @@
+# Unless otherwise stated, we assume that the time complexity of the function described takes O(1) time, and the initialisation of array ADTs that use the referrential array ArrayR take O(n) time, where n is number of elements in the array.
+# ADT operations for stack and queue are also assumed take O(1) time, as push and pop, append and serve are all just accessing an element from the top, or back and front of tje arrayADT respectively, unless otherwise stated.
+
 from math import ceil
 from data_structures.referential_array import ArrayR
 from poke_team import Trainer, PokeTeam
@@ -12,7 +15,16 @@ class Battle:
         self.battle_mode = battle_mode
         self.criterion = criterion
 
-    #
+    # Commence_battle() is the main function that starts the battle between the two trainers.
+    # The function initialises a winning_team variable to None for the winner.
+    # The function then checks the battle mode and calls the appropriate battle function.
+    # If the battle mode is SET, it calls the set_battle() function, which has a time complexity of O(n) where n is the number of battles played.
+    # If the battle mode is ROTATE, it calls the rotate_battle() function, which has a time complexity of O(n) where n is the number of battles played.
+    # If the battle mode is OPTIMISE, it calls the optimise_battle() function, which has a time complexity of O(n log n) where n is the number of pokemon in the team.
+    # We then check if the winning_team is the same as the trainer's team, and return the winner trainner.
+    # The function has a time complexity of O(n) if the battle mode is SET or ROTATE, and O(n log n) if the battle mode is OPTIMISE, where n is the number of pokemon in the team.
+    # The best case time complexity is O(1) if the teams only have one pokemon and they both faint immedieately after the first battle.
+    # The worst case time complexity is O(n log n) if the teams have n pokemon and they all faint after m optimise battles.
     def commence_battle(self) -> Trainer | None:
         winning_team = None
         if self.battle_mode == BattleMode.SET:
@@ -70,16 +82,20 @@ class Battle:
             self.trainer_2.get_team().assign_team(self.criterion)
         return self.trainer_1, self.trainer_2
 
-    # The function first creates the teams by calling the _create_teams() function.
+    # The function pops the top pokemon from each team pokemon_1 and pokemon_2 and has them battle each other.
+    # We then call one_on_one() to simulate the battle between the two pokemon, which has a time complexity of O(1).
+    # The function then checks if the pokemon is_alive(), if it is, it pushes the pokemon back into the team, if it is not, it adds the pokemon to the fainted_pokemon array.
+    # The function then repeats the process n times where n is the number of battles played, until one of the teams has no more pokemon.
+    # The function has a time complexity of O(n) where n is the number of battles played.
+    # The best case time complexity is O(1) if the teams only have one pokemon and they both faint immedieately after the first battle.
+    # The worst case time complexity is O(n) if the teams have n pokemon and they all faint after n battles.
     def set_battle(self) -> PokeTeam | None:        
         while self.trainer_1.team.team_count > 0 and self.trainer_2.team.team_count > 0:
             pokemon_1 = self.trainer_1.team.team.pop()
             self.trainer_1.team.team_count -= 1
             pokemon_2 = self.trainer_2.team.team.pop()
             self.trainer_2.team.team_count -= 1
-
             self.one_on_one(pokemon_1, pokemon_2)
-
             if pokemon_1.is_alive():
                 self.trainer_1.team.team.push(pokemon_1)
                 self.trainer_1.team.team_count += 1
@@ -90,20 +106,22 @@ class Battle:
                 self.trainer_2.team.team_count += 1
             else:
                 self.trainer_2.team.fainted_pokemon[pokemon_2.id] = pokemon_2
-                
-        
-
         return self.trainer_2.team if self.trainer_1.team.team_count == 0 else self.trainer_1.team if self.trainer_2.team.team_count == 0 else None
 
+    # The function serves the front pokemon from each team pokemon_1 and pokemon_2 and has them battle each other.
+    # We then call one_on_one() to simulate the battle between the two pokemon, which has a time complexity of O(1).
+    # The function then checks if the pokemon is_alive(), if it is, it appends the pokemon back into the team, if it is not, it adds the pokemon to the fainted_pokemon array.
+    # The function then repeats the process n times where n is the number of battles played, until one of the teams has no more pokemon.
+    # The function has a time complexity of O(n) where n is the number of battles played.
+    # The best case time complexity is O(1) if the teams only have one pokemon and they both faint immedieately after the first battle.
+    # The worst case time complexity is O(n) if the teams have n pokemon and they all faint after n battles.
     def rotate_battle(self) -> PokeTeam | None:
         while self.trainer_1.team.team_count > 0 and self.trainer_2.team.team_count > 0:
             pokemon_1 = self.trainer_1.team.team.serve()
             self.trainer_1.team.team_count -= 1
             pokemon_2 = self.trainer_2.team.team.serve()
             self.trainer_2.team.team_count -= 1
-
             self.one_on_one(pokemon_1, pokemon_2)
-
             if pokemon_1.is_alive():
                 self.trainer_1.team.team.append(pokemon_1)
                 self.trainer_1.get_team().team_count += 1
@@ -114,16 +132,22 @@ class Battle:
                 self.trainer_2.get_team().team_count += 1
             else:
                 self.trainer_2.team.fainted_pokemon[pokemon_2.id] = pokemon_2
-
         return self.trainer_2.team if self.trainer_1.team.team_count == 0 else self.trainer_1.team if self.trainer_2.team.team_count == 0 else None
 
+    # The function assigns the team based on the criterion given. If the criterion is "health", the team is assigned in ascending order of health.
+    # The function then gets the pokemon with the lowest attribute from the front of each team pokemon_1 and pokemon_2 and has them battle each other.
+    # We then call one_on_one() to simulate the battle between the two pokemon, which has a time complexity of O(1).
+    # The function then checks if the pokemon is_alive(), if it is, it arranges the order of the team in case the criterion attribute of the pokemon changed, which takes O(n log n) time
+    # Otherwise, it adds the pokemon to the fainted_pokemon array, and calls delete_at_index() which takes O(n) time to shuffle all the pokemon leftwards into the deleted index.
+    # The function then repeats the process m times for O(m) where m is the number of battles played, until one of the teams has no more pokemon.
+    # The function has a time complexity of O(n log n) where n is the number of pokemon in the team.
+    # The best case time complexity is O(1) if the teams only have one pokemon and they both faint immedieately after the first battle.
+    # The worst case time complexity is O(m * (n log n)) if the teams have n pokemon and they all faint after m battles, as we have to rearrange after each battle as well.
     def optimise_battle(self) -> PokeTeam | None:
         while self.trainer_1.team.team_count > 0 and self.trainer_2.team.team_count > 0:
             pokemon_1 = self.trainer_1.team.team.__getitem__(0)
             pokemon_2 = self.trainer_2.team.team.__getitem__(0)
-            
             self.one_on_one(pokemon_1, pokemon_2)
-
             if pokemon_1.is_alive():
                 self.trainer_1.team.assign_team(self.criterion)
             else:
@@ -136,7 +160,6 @@ class Battle:
                 self.trainer_2.team.fainted_pokemon[pokemon_2.id] = self.trainer_2.team.team.delete_at_index(0)
                 print(f"{self.trainer_2.team.fainted_pokemon[pokemon_2.id]} has fainted")
                 self.trainer_2.team.team_count -= 1
-        
         return self.trainer_2.team if self.trainer_1.team.team_count == 0 else self.trainer_1.team if self.trainer_2.team.team_count == 0 else None
     
     # We have a one on one battle between two pokemon. When they meet, the two trainers register their opponent's pokemons, which takes O(1) time in the BSet data structure.
@@ -150,7 +173,6 @@ class Battle:
         self.trainer_1.register_pokemon(pokemon_2)
         self.trainer_2.register_pokemon(pokemon_1)
         faster_pokemon, slower_pokemon, faster_trainer, slower_trainer = (pokemon_1, pokemon_2, self.trainer_1, self.trainer_2) if pokemon_1.get_speed() >= pokemon_2.get_speed() else  (pokemon_2, pokemon_1, self.trainer_2, self.trainer_1) 
-
         faster_pokemon.calculate_damage(slower_pokemon, faster_trainer.get_pokedex_completion()/slower_trainer.get_pokedex_completion()) 
         if slower_pokemon.is_alive() or faster_pokemon.get_speed() == slower_pokemon.get_speed():
             slower_pokemon.calculate_damage(faster_pokemon, slower_trainer.get_pokedex_completion()/faster_trainer.get_pokedex_completion())
